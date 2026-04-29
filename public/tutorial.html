@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial — Meu Imposto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <a class="btn btn-ghost mb-4" href="tutoriais.html" style="display:inline-flex">← Todos os tutoriais</a>
+
+      <div class="grid" style="grid-template-columns: 1fr 240px; gap: 32px" id="conteudo"></div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'tutoriais.html', titulo: 'Tutoriais' });
+  var id = getParam('id') || '1';
+  var t = tutoriais.find(function(x) { return x.id === id; }) || tutoriais[0];
+  var titulosPassos = ['Acesse o Gov.br', 'Faca login com seu CPF', 'Localize a opcao desejada', 'Preencha os dados solicitados', 'Confirme o envio', 'Salve o comprovante'];
+  var html = '<div>';
+  html += '<span class="badge badge-outline mb-3" style="display:inline-block">' + t.categoria + '</span>';
+  html += '<h1 class="text-3xl font-extrabold">' + t.titulo + '</h1>';
+  html += '<p class="text-suave mt-2">Tempo estimado: ' + t.tempo + ' · Dificuldade: ' + t.dificuldade + '</p>';
+  for (var i = 0; i < 6; i++) {
+    html += '<div class="card card-shadow mt-5" id="passo-' + (i+1) + '" style="padding:0">';
+    html += '<div style="aspect-ratio:16/9; background: linear-gradient(135deg, rgba(30,27,107,0.1), rgba(245,197,24,0.1), rgba(16,185,129,0.1)); display:flex; align-items:center; justify-content:center; border-bottom:1px solid var(--borda)">';
+    html += '<span style="font-size:80px;font-weight:800;color:rgba(30,27,107,0.2)">' + (i+1) + '</span></div>';
+    html += '<div style="padding:20px"><h3>Passo ' + (i+1) + ': ' + titulosPassos[i] + '</h3>';
+    html += '<p class="text-sm text-suave mt-2">Descricao detalhada do que fazer nesta etapa. Lembre-se de manter seu certificado digital ou senha do Gov.br a mao.</p>';
+    if (i % 2 === 0) html += '<button class="btn btn-outline btn-sm mt-3">↗ Abrir no Gov.br</button>';
+    html += '</div></div>';
+  }
+  html += '<div class="card muted-bg mt-5 flex justify-between items-center"><p class="font-semibold text-sm">Esse tutorial foi util?</p>';
+  html += '<div class="flex gap-2"><button class="btn btn-outline btn-sm" onclick="toast(\'Obrigado pelo feedback!\')">👍 Sim</button><button class="btn btn-outline btn-sm" onclick="toast(\'Vamos melhorar!\')">👎 Nao</button></div></div>';
+  html += '</div>';
+  html += '<aside><div class="card" style="position:sticky; top:80px"><div class="text-xs uppercase font-bold text-suave mb-3">Indice</div><ul style="list-style:none;padding:0">';
+  for (var i = 0; i < 6; i++) {
+    html += '<li><a href="#passo-' + (i+1) + '" class="text-sm" style="display:block;padding:8px 12px;border-left:2px solid transparent;color:var(--texto)" onmouseover="this.style.borderColor=\'var(--roxo)\';this.style.color=\'var(--roxo)\'" onmouseout="this.style.borderColor=\'transparent\';this.style.color=\'var(--texto)\'">Passo ' + (i+1) + ': ' + titulosPassos[i] + '</a></li>';
+  }
+  html += '</ul></div></aside>';
+  document.getElementById('conteudo').innerHTML = html;
+  lucide.createIcons();
+</script>
+</body>
+</html>

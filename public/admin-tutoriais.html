@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutoriais — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/admin.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <div class="page-header">
+        <div class="titulo">
+          <div class="icone"><i data-lucide="book-open"></i></div>
+          <div><h1>Gestao de tutoriais</h1><p>Crie, edite e publique conteudos para os MEIs.</p></div>
+        </div>
+        <button class="btn btn-primary" onclick="toast('Abrindo editor...')">+ Novo tutorial</button>
+      </div>
+
+      <div class="card card-shadow" style="padding:0; overflow-x:auto">
+        <table class="tabela">
+          <thead><tr><th>Titulo</th><th>Categoria</th><th>Status</th><th>Visualizacoes</th><th></th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'admin-tutoriais.html', titulo: 'Tutoriais', admin: true });
+  var html = '';
+  for (var i = 0; i < tutoriais.length; i++) {
+    var t = tutoriais[i];
+    var rascunho = i % 5 === 0;
+    html += '<tr><td class="font-semibold">' + t.titulo + '</td><td><span class="badge badge-outline">' + t.categoria + '</span></td>';
+    html += '<td><span class="badge ' + (rascunho ? 'badge-amarelo' : 'badge-verde') + '">' + (rascunho ? 'Rascunho' : 'Publicado') + '</span></td>';
+    html += '<td class="font-bold tabular">' + numero(1200 - i * 70) + '</td>';
+    html += '<td class="text-right"><button class="btn btn-ghost btn-icon">✎</button><button class="btn btn-ghost btn-icon" style="color:var(--vermelho)">🗑</button></td></tr>';
+  }
+  document.getElementById('tbody').innerHTML = html;
+  lucide.createIcons();
+</script>
+</body>
+</html>

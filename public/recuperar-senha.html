@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperar senha — Meu Imposto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/auth.css">
+</head>
+<body style="background: var(--fundo); display:flex; min-height:100vh; align-items:center; justify-content:center; padding:20px">
+
+<div class="card card-shadow" style="max-width:420px;width:100%;padding:32px">
+  <a href="login.html" class="text-sm text-suave mb-5" style="display:inline-block">← Voltar ao login</a>
+  <div style="width:48px;height:48px;border-radius:12px;background:var(--roxo);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px">🔑</div>
+  <h1 class="text-2xl font-extrabold">Recuperar senha</h1>
+  <p class="text-suave text-sm mt-1">Informe seu e-mail e enviaremos um link de recuperacao.</p>
+
+  <form id="formRec" class="mt-5">
+    <div class="form-group">
+      <label class="label">E-mail</label>
+      <input class="input" type="email" placeholder="voce@email.com" required>
+    </div>
+    <button class="btn btn-primary w-full btn-lg" type="submit">Enviar link</button>
+  </form>
+
+  <div id="sucesso" class="hidden sucesso-box mt-5 text-sm">
+    ✓ Verifique seu e-mail. O link expira em 1 hora.
+  </div>
+
+  <div class="text-center mt-6">
+    <a class="logo" href="index.html"><img src="assets/img/logo.png" alt=""><span class="logo-texto"><span class="logo-titulo">Meu Imposto</span></span></a>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script>
+  document.getElementById('formRec').addEventListener('submit', function(e) {
+    e.preventDefault();
+    document.getElementById('sucesso').classList.remove('hidden');
+    e.target.classList.add('hidden');
+    toast('E-mail enviado!');
+  });
+</script>
+</body>
+</html>

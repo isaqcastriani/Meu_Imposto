@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil — Meu Imposto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <div class="page-header">
+        <div class="titulo">
+          <div class="icone"><i data-lucide="user"></i></div>
+          <div><h1>Perfil e configuracoes</h1><p>Gerencie seus dados pessoais e preferencias.</p></div>
+        </div>
+      </div>
+
+      <div class="tabs mb-5">
+        <button class="tab ativa" onclick="tab('pessoais', this)">Pessoais</button>
+        <button class="tab" onclick="tab('empresa', this)">Empresa</button>
+        <button class="tab" onclick="tab('senha', this)">Senha</button>
+        <button class="tab" onclick="tab('notif', this)">Notif.</button>
+      </div>
+
+      <div id="tab-pessoais" class="card card-shadow">
+        <div class="grid grid-2">
+          <div class="form-group"><label class="label">Nome</label><input class="input" id="pNome"></div>
+          <div class="form-group"><label class="label">E-mail</label><input class="input" id="pEmail"></div>
+          <div class="form-group"><label class="label">CPF</label><input class="input" id="pCpf" disabled></div>
+          <div class="form-group"><label class="label">Telefone</label><input class="input" id="pTel"></div>
+        </div>
+        <button class="btn btn-primary mt-3" onclick="toast('Dados atualizados!')">Salvar alteracoes</button>
+      </div>
+
+      <div id="tab-empresa" class="card card-shadow hidden">
+        <div class="grid grid-2">
+          <div class="form-group"><label class="label">CNPJ</label><input class="input" id="eCnpj" disabled></div>
+          <div class="form-group"><label class="label">Razao social</label><input class="input" id="eRazao"></div>
+          <div class="form-group"><label class="label">Nome fantasia</label><input class="input" id="eFant"></div>
+          <div class="form-group"><label class="label">CNAE</label><input class="input" id="eCnae" disabled></div>
+          <div class="form-group" style="grid-column:span 2"><label class="label">Endereco</label><input class="input" id="eEnd"></div>
+        </div>
+        <div class="flex gap-2 mt-3">
+          <button class="btn btn-primary" onclick="toast('Salvo!')">Salvar</button>
+          <button class="btn btn-outline" onclick="toast('Sincronizando...', { tipo: 'info' })">Atualizar via API CNPJ</button>
+        </div>
+      </div>
+
+      <div id="tab-senha" class="card card-shadow hidden" style="max-width:420px">
+        <div class="form-group"><label class="label">Senha atual</label><input class="input" type="password"></div>
+        <div class="form-group"><label class="label">Nova senha</label><input class="input" type="password"></div>
+        <div class="form-group"><label class="label">Confirmacao</label><input class="input" type="password"></div>
+        <button class="btn btn-primary" onclick="toast('Senha alterada!')">Alterar senha</button>
+      </div>
+
+      <div id="tab-notif" class="card card-shadow hidden">
+        <div id="notifs"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'perfil.html', titulo: 'Perfil' });
+  document.getElementById('pNome').value = usuarioMEI.nome;
+  document.getElementById('pEmail').value = usuarioMEI.email;
+  document.getElementById('pCpf').value = usuarioMEI.cpf;
+  document.getElementById('pTel').value = usuarioMEI.telefone;
+  document.getElementById('eCnpj').value = usuarioMEI.cnpj;
+  document.getElementById('eRazao').value = usuarioMEI.razaoSocial;
+  document.getElementById('eFant').value = usuarioMEI.nomeFantasia;
+  document.getElementById('eCnae').value = usuarioMEI.cnae;
+  document.getElementById('eEnd').value = usuarioMEI.endereco;
+  function tab(qual, btn) {
+    var todos = ['pessoais', 'empresa', 'senha', 'notif'];
+    for (var i = 0; i < todos.length; i++) document.getElementById('tab-' + todos[i]).classList.add('hidden');
+    document.getElementById('tab-' + qual).classList.remove('hidden');
+    var tabs = document.querySelectorAll('.tab');
+    for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('ativa');
+    btn.classList.add('ativa');
+  }
+  var notifs = [
+    { l: 'Alertas por e-mail', d: 'Receba notificacoes importantes no seu e-mail' },
+    { l: 'Notificacoes push', d: 'Alertas em tempo real no navegador' },
+    { l: 'Lembretes de prazos', d: 'Avisos antes do vencimento de DAS e declaracoes' },
+    { l: 'Alertas de teto MEI', d: 'Avisos quando voce se aproxima do limite anual' }
+  ];
+  var nh = '';
+  for (var i = 0; i < notifs.length; i++) {
+    nh += '<div class="flex justify-between items-center p-3 mb-2" style="border:1px solid var(--borda);border-radius:10px"><div><div class="font-semibold text-sm">' + notifs[i].l + '</div><div class="text-xs text-suave">' + notifs[i].d + '</div></div><input type="checkbox" checked style="width:36px;height:20px;cursor:pointer"></div>';
+  }
+  document.getElementById('notifs').innerHTML = nh;
+  lucide.createIcons();
+</script>
+</body>
+</html>

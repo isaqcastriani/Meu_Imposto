@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beneficios — Meu Imposto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <div class="page-header">
+        <div class="titulo">
+          <div class="icone"><i data-lucide="heart-handshake"></i></div>
+          <div><h1>Beneficios e isencoes</h1><p>Veja quais beneficios do INSS voce ja tem direito.</p></div>
+        </div>
+      </div>
+
+      <div class="card card-shadow mb-5" style="background: var(--roxo); color: #fff">
+        <div class="text-xs uppercase font-bold" style="opacity:0.8">Tempo de contribuicao</div>
+        <div class="text-3xl font-extrabold tabular mt-1">28 meses</div>
+        <div class="text-sm mt-1" style="opacity:0.85">Voce contribui regularmente desde janeiro de 2023.</div>
+      </div>
+
+      <div id="lista"></div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'beneficios.html', titulo: 'Beneficios' });
+  var beneficios = [
+    { nome: 'Auxilio-doenca', carencia: 12, contrib: 28, valor: 'R$ 1.412,00', desc: 'Concedido em caso de incapacidade temporaria por mais de 15 dias.', apto: true },
+    { nome: 'Salario-maternidade', carencia: 10, contrib: 28, valor: 'R$ 1.412,00', desc: 'Concedido por 120 dias apos parto, adocao ou guarda judicial.', apto: true },
+    { nome: 'Aposentadoria por idade', carencia: 180, contrib: 28, valor: 'R$ 1.412,00', desc: 'Mulher: 62 anos. Homem: 65 anos. Minimo 15 anos de contribuicao.', apto: false },
+    { nome: 'Aposentadoria por invalidez', carencia: 12, contrib: 28, valor: 'R$ 1.412,00', desc: 'Em caso de incapacidade total e permanente para o trabalho.', apto: true },
+    { nome: 'Pensao por morte', carencia: 18, contrib: 28, valor: 'R$ 1.412,00', desc: 'Devida aos dependentes do segurado falecido.', apto: true }
+  ];
+  var html = '';
+  for (var i = 0; i < beneficios.length; i++) {
+    var b = beneficios[i];
+    var prog = Math.min(100, (b.contrib / b.carencia) * 100);
+    html += '<details class="card mb-3"><summary style="cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center">';
+    html += '<div><b>' + b.nome + '</b><div class="text-xs text-suave mt-1">Carencia: ' + b.carencia + ' meses</div></div>';
+    html += '<span class="badge ' + (b.apto ? 'badge-verde' : 'badge-amarelo') + '">' + (b.apto ? 'Apto' : 'Em progresso') + '</span></summary>';
+    html += '<div class="mt-4 text-sm text-suave">' + b.desc + '</div>';
+    if (!b.apto) {
+      html += '<div class="mt-3"><div class="flex justify-between text-xs mb-1"><span>Progresso da carencia</span><span class="font-bold tabular">' + b.contrib + '/' + b.carencia + ' meses</span></div>';
+      html += '<div class="progress" style="height:8px"><div class="progress-bar amarelo" style="width:' + prog + '%"></div></div></div>';
+    }
+    html += '<div class="flex justify-between items-center flex-wrap gap-3 mt-4"><div><div class="text-xs text-suave">Valor estimado</div><div class="font-bold tabular text-lg">' + b.valor + '</div></div>';
+    html += '<button class="btn btn-outline btn-sm">↗ Saber mais no Meu INSS</button></div>';
+    html += '</details>';
+  }
+  document.getElementById('lista').innerHTML = html;
+  lucide.createIcons();
+</script>
+</body>
+</html>

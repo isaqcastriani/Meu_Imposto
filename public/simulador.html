@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador — Meu Imposto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <div class="page-header">
+        <div class="titulo">
+          <div class="icone"><i data-lucide="trending-up"></i></div>
+          <div><h1>Simulador de desenquadramento</h1><p>Veja se vale a pena migrar do MEI para o Simples Nacional.</p></div>
+        </div>
+      </div>
+
+      <div class="card card-shadow mb-5">
+        <label class="label">Qual seu faturamento previsto para o ano?</label>
+        <div class="flex gap-3 items-center">
+          <input class="input text-2xl font-bold tabular" id="valor" value="95000" style="height:56px">
+          <button class="btn btn-primary" style="height:56px" onclick="simular()">Simular</button>
+        </div>
+        <input type="range" id="slider" class="range mt-4" min="0" max="200000" step="1000" value="95000" oninput="document.getElementById('valor').value = this.value; sync()">
+        <div class="flex justify-between text-xs text-suave mt-2 tabular">
+          <span>R$ 0</span>
+          <span class="text-amarelo font-bold">↑ Teto: R$ 81.000</span>
+          <span>R$ 200.000</span>
+        </div>
+      </div>
+
+      <div id="resultado"></div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'simulador.html', titulo: 'Simulador' });
+  function sync() {
+    document.getElementById('slider').value = document.getElementById('valor').value;
+  }
+  document.getElementById('valor').addEventListener('input', function(e) {
+    var v = parseInt(e.target.value.replace(/\D/g, '')) || 0;
+    e.target.value = v;
+    document.getElementById('slider').value = v;
+  });
+  var passos = [
+    'Comunicar o desenquadramento no Portal do Simples Nacional',
+    'Atualizar inscricao estadual/municipal se aplicavel',
+    'Migrar contabilidade para um regime tributario (Simples Nacional)',
+    'Contratar contador (obrigatorio para outros regimes)',
+    'Emitir NFs no novo modelo a partir do mes seguinte',
+    'Recolher os tributos no novo regime mensalmente'
+  ];
+  function simular() {
+    var resultado = parseInt(document.getElementById('valor').value) || 0;
+    var dentro = resultado <= TETO_MEI;
+    var html = '';
+    if (dentro) {
+      html += '<div class="sucesso-box text-center" style="padding:36px">';
+      html += '<div style="font-size:48px">✅</div>';
+      html += '<h3 class="text-2xl font-extrabold mt-2">Voce esta dentro do limite!</h3>';
+      html += '<p class="text-suave mt-2">Margem disponivel ate o teto: <b class="text-verde tabular">' + brl(TETO_MEI - resultado) + '</b></p>';
+      html += '</div>';
+    } else {
+      var dasAnual = 75.90 * 12;
+      var novosImpostos = resultado * 0.06;
+      html += '<div class="aviso-box flex gap-3 items-start mb-5">';
+      html += '<div style="font-size:28px">⚠️</div>';
+      html += '<div><h3 class="font-bold text-lg">Atencao: voce ultrapassara o teto MEI</h3>';
+      html += '<p class="text-sm text-suave mt-1">Excedente de <b class="tabular">' + brl(resultado - TETO_MEI) + '</b>. Veja o impacto:</p></div></div>';
+      html += '<div class="grid grid-2 mb-5">';
+      html += '<div class="card card-shadow"><div class="text-xs uppercase font-bold text-suave">Cenario atual (MEI)</div>';
+      html += '<div class="text-3xl font-extrabold tabular mt-2">' + brl(dasAnual) + '</div>';
+      html += '<div class="text-xs text-suave">por ano em DAS fixo</div></div>';
+      html += '<div class="card" style="border:2px solid rgba(220,38,38,0.3); background: rgba(220,38,38,0.05)">';
+      html += '<div class="text-xs uppercase font-bold text-vermelho">Cenario Simples Nacional</div>';
+      html += '<div class="text-3xl font-extrabold tabular mt-2 text-vermelho">' + brl(novosImpostos) + '</div>';
+      html += '<div class="text-xs text-suave">~6% sobre o faturamento</div>';
+      html += '<div class="text-sm font-bold mt-3">Diferenca: <span class="text-vermelho tabular">+' + brl(novosImpostos - dasAnual) + '/ano</span></div></div></div>';
+      html += '<div class="card card-shadow"><h3 class="mb-4">Passo a passo para regularizacao →</h3><ol style="list-style:none;padding:0">';
+      for (var i = 0; i < passos.length; i++) {
+        html += '<li class="flex gap-3 mb-3 items-start"><span style="width:28px;height:28px;border-radius:50%;background:var(--roxo);color:#fff;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0">' + (i+1) + '</span><span class="text-sm" style="padding-top:4px">' + passos[i] + '</span></li>';
+      }
+      html += '</ol></div>';
+    }
+    document.getElementById('resultado').innerHTML = html;
+  }
+  lucide.createIcons();
+</script>
+</body>
+</html>

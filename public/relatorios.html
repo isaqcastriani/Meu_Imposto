@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatorios — Meu Imposto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <div class="page-header">
+        <div class="titulo">
+          <div class="icone"><i data-lucide="bar-chart-3"></i></div>
+          <div><h1>Relatorios financeiros</h1><p>Analise completa da sua operacao.</p></div>
+        </div>
+        <div class="flex gap-2">
+          <select class="select" style="width:auto"><option>Anual</option><option>Mensal</option><option>Personalizado</option></select>
+          <button class="btn btn-primary" onclick="toast('PDF gerado!', { desc: 'Download iniciado.' })">⬇ Exportar PDF</button>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-5" id="kpis"></div>
+
+      <div class="grid grid-2 mb-5">
+        <div class="card card-shadow"><h3 class="mb-3">Receitas vs Despesas</h3><div style="height:260px"><canvas id="g1"></canvas></div></div>
+        <div class="card card-shadow"><h3 class="mb-3">Evolucao do lucro</h3><div style="height:260px"><canvas id="g2"></canvas></div></div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card card-shadow"><h3 class="mb-3">Distribuicao de receitas</h3><div style="height:240px"><canvas id="g3"></canvas></div></div>
+        <div class="card card-shadow"><h3 class="mb-3">Distribuicao de despesas</h3><div style="height:240px"><canvas id="g4"></canvas></div></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'relatorios.html', titulo: 'Relatorios' });
+  var receitas = 0, despesas = 0;
+  for (var i = 0; i < lancamentos.length; i++) {
+    if (lancamentos[i].tipo === 'receita') receitas += lancamentos[i].valor;
+    else despesas += lancamentos[i].valor;
+  }
+  var lucro = receitas - despesas;
+  var margem = (lucro / receitas) * 100;
+  document.getElementById('kpis').innerHTML =
+    '<div class="kpi"><div><div class="kpi-label">Receita total</div><div class="kpi-valor text-verde">' + brl(receitas) + '</div></div><div class="kpi-icone verde">📈</div></div>' +
+    '<div class="kpi"><div><div class="kpi-label">Despesa total</div><div class="kpi-valor text-vermelho">' + brl(despesas) + '</div></div><div class="kpi-icone vermelho">📉</div></div>' +
+    '<div class="kpi"><div><div class="kpi-label">Lucro liquido</div><div class="kpi-valor">' + brl(lucro) + '</div></div><div class="kpi-icone roxo">💰</div></div>' +
+    '<div class="kpi"><div><div class="kpi-label">Margem</div><div class="kpi-valor">' + pct(margem) + '</div></div><div class="kpi-icone amarelo">%</div></div>';
+  var data = faturamentoMensal.map(function(m) { return { mes: m.mes, receita: m.valor, despesa: Math.round(m.valor * 0.25), lucro: Math.round(m.valor * 0.75) }; });
+  var labels = data.map(function(d) { return d.mes; });
+  new Chart(document.getElementById('g1'), {
+    type: 'bar',
+    data: { labels: labels, datasets: [
+      { label: 'Receita', data: data.map(function(d) { return d.receita; }), backgroundColor: '#10b981', borderRadius: 4 },
+      { label: 'Despesa', data: data.map(function(d) { return d.despesa; }), backgroundColor: '#dc2626', borderRadius: 4 }
+    ]},
+    options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: function(c) { return c.dataset.label + ': ' + brl(c.parsed.y); } } } } }
+  });
+  new Chart(document.getElementById('g2'), {
+    type: 'line',
+    data: { labels: labels, datasets: [{ label: 'Lucro', data: data.map(function(d) { return d.lucro; }), borderColor: '#1e1b6b', borderWidth: 3, tension: 0.35 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: function(c) { return brl(c.parsed.y); } } } } }
+  });
+  function porCategoria(tipo) {
+    var m = {};
+    for (var i = 0; i < lancamentos.length; i++) {
+      if (lancamentos[i].tipo === tipo) m[lancamentos[i].categoria] = (m[lancamentos[i].categoria] || 0) + lancamentos[i].valor;
+    }
+    return m;
+  }
+  var COR = ['#1e1b6b', '#f5c518', '#10b981', '#f59e0b', '#dc2626'];
+  function pieChart(canvasId, tipo) {
+    var m = porCategoria(tipo);
+    var labs = Object.keys(m);
+    new Chart(document.getElementById(canvasId), {
+      type: 'pie',
+      data: { labels: labs, datasets: [{ data: labs.map(function(l) { return m[l]; }), backgroundColor: COR, borderColor: '#fff', borderWidth: 2 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: function(c) { return c.label + ': ' + brl(c.parsed); } } } } }
+    });
+  }
+  pieChart('g3', 'receita');
+  pieChart('g4', 'despesa');
+  lucide.createIcons();
+</script>
+</body>
+</html>

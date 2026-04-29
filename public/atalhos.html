@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atalhos Gov.br — Meu Imposto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <div class="page-header">
+        <div class="titulo">
+          <div class="icone"><i data-lucide="external-link"></i></div>
+          <div><h1>Atalhos Gov.br</h1><p>Acesso rapido a todos os portais oficiais que o MEI precisa.</p></div>
+        </div>
+      </div>
+
+      <div id="grupos"></div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'atalhos.html', titulo: 'Atalhos' });
+  var grupos = {};
+  for (var i = 0; i < atalhosGov.length; i++) {
+    var a = atalhosGov[i];
+    if (!grupos[a.categoria]) grupos[a.categoria] = [];
+    grupos[a.categoria].push(a);
+  }
+  var html = '';
+  for (var cat in grupos) {
+    html += '<div class="mb-6"><h3 class="text-xs uppercase font-bold text-suave mb-3">' + cat + '</h3>';
+    html += '<div class="grid grid-3">';
+    for (var i = 0; i < grupos[cat].length; i++) {
+      var a = grupos[cat][i];
+      html += '<div class="card"><div class="kpi-icone roxo mb-3" style="background:var(--roxo);color:#fff">↗</div>';
+      html += '<h3>' + a.nome + '</h3><p class="text-sm text-suave mt-1">' + a.desc + '</p>';
+      html += '<a class="btn btn-outline w-full mt-4" href="' + a.url + '" target="_blank">Acessar ↗</a></div>';
+    }
+    html += '</div></div>';
+  }
+  document.getElementById('grupos').innerHTML = html;
+  lucide.createIcons();
+</script>
+</body>
+</html>

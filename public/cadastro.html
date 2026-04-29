@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro — Meu Imposto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/auth.css">
+  <link rel="icon" href="assets/img/logo.png">
+</head>
+<body style="background: var(--fundo);">
+
+<header class="landing-header">
+  <div class="container">
+    <a class="logo" href="index.html"><img src="assets/img/logo.png" alt=""><span class="logo-texto"><span class="logo-titulo">Meu Imposto</span><span class="logo-subtitulo">MEI sem complicacao</span></span></a>
+    <a href="login.html" class="text-sm text-roxo font-semibold">Ja tenho conta</a>
+  </div>
+</header>
+
+<div class="container-sm" style="padding-top:40px;padding-bottom:60px">
+
+  <div class="stepper" id="stepper"></div>
+
+  <div class="card card-shadow" style="padding:32px">
+
+    <div id="passo1">
+      <h1 class="text-2xl font-extrabold">Vamos comecar pelos seus dados</h1>
+      <p class="text-suave text-sm mt-2">Tudo o que voce informar fica protegido sob a LGPD.</p>
+
+      <div class="grid grid-2 mt-5">
+        <div class="form-group" style="grid-column: span 2">
+          <label class="label">Nome completo</label>
+          <input class="input" id="nome" placeholder="Maria da Silva">
+        </div>
+        <div class="form-group">
+          <label class="label">E-mail</label>
+          <input class="input" id="email" type="email" placeholder="voce@email.com">
+        </div>
+        <div class="form-group">
+          <label class="label">CPF</label>
+          <input class="input" id="cpf" placeholder="000.000.000-00">
+        </div>
+        <div class="form-group">
+          <label class="label">Senha</label>
+          <input class="input" id="senha" type="password" placeholder="Minimo 8 caracteres">
+          <div id="forcaWrap" class="hidden mt-2">
+            <div class="forca-barras" id="forcaBarras"><div></div><div></div><div></div><div></div></div>
+            <div class="text-xs text-suave mt-1">Forca: <span class="font-semibold" id="forcaLabel">-</span></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="label">Confirme a senha</label>
+          <input class="input" id="senha2" type="password" placeholder="Repita a senha">
+          <div id="senhaErro" class="hidden text-xs text-vermelho mt-1">As senhas nao coincidem.</div>
+        </div>
+      </div>
+
+      <div class="flex justify-between mt-6" style="border-top:1px solid var(--borda);padding-top:20px">
+        <a class="btn btn-ghost" href="index.html">← Voltar</a>
+        <button class="btn btn-primary" id="btnPasso1" disabled onclick="irPasso(2)">Continuar →</button>
+      </div>
+    </div>
+
+    <div id="passo2" class="hidden">
+      <h1 class="text-2xl font-extrabold">Agora os dados da sua empresa</h1>
+      <p class="text-suave text-sm mt-2">Vamos buscar seu CNPJ na BrasilAPI para preencher tudo automaticamente.</p>
+
+      <div class="flex gap-3 mt-5" style="align-items:flex-end">
+        <div class="form-group" style="flex:1;margin:0">
+          <label class="label">CNPJ</label>
+          <input class="input" id="cnpj" placeholder="00.000.000/0000-00">
+        </div>
+        <button class="btn btn-primary" id="btnConsultar" disabled onclick="consultarCNPJ()">Consultar CNPJ</button>
+      </div>
+
+      <div id="empresaResultado" class="hidden mt-5"></div>
+
+      <div class="flex justify-between mt-6" style="border-top:1px solid var(--borda);padding-top:20px">
+        <button class="btn btn-ghost" onclick="irPasso(1)">← Voltar</button>
+        <button class="btn btn-primary" id="btnPasso2" disabled onclick="irPasso(3)">Continuar →</button>
+      </div>
+    </div>
+
+    <div id="passo3" class="hidden">
+      <h1 class="text-2xl font-extrabold">Quase la! Confirme seus dados</h1>
+      <p class="text-suave text-sm mt-2">Revise tudo antes de finalizar o cadastro.</p>
+
+      <div class="mt-5">
+        <div class="card muted-bg mb-3">
+          <div class="text-xs uppercase font-bold text-suave mb-2">Pessoais</div>
+          <div id="resumoPessoal" class="text-sm"></div>
+        </div>
+        <div class="card muted-bg mb-3">
+          <div class="text-xs uppercase font-bold text-suave mb-2">Empresa</div>
+          <div id="resumoEmpresa" class="text-sm"></div>
+        </div>
+
+        <label class="card flex gap-3 items-start" style="cursor:pointer;border-style:dashed">
+          <input type="checkbox" id="aceito" onchange="atualizarFinalizar()" style="margin-top:3px">
+          <span class="text-sm">Li e aceito os <a href="#" class="text-roxo font-semibold">Termos de uso</a> e a <a href="#" class="text-roxo font-semibold">Politica de Privacidade (LGPD)</a>.</span>
+        </label>
+      </div>
+
+      <div class="flex justify-between mt-6" style="border-top:1px solid var(--borda);padding-top:20px">
+        <button class="btn btn-ghost" onclick="irPasso(2)">← Voltar</button>
+        <button class="btn btn-verde" id="btnFinalizar" disabled onclick="finalizar()">Finalizar cadastro ✓</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script>
+  var passoAtual = 1;
+  var empresaData = null;
+  function renderStepper() {
+    var passos = [{n:1,label:'Dados pessoais'},{n:2,label:'Dados da empresa'},{n:3,label:'Confirmacao'}];
+    var html = '';
+    for (var i = 0; i < passos.length; i++) {
+      var p = passos[i];
+      var classe = 'stepper-bola';
+      if (p.n < passoAtual) classe += ' ok';
+      else if (p.n === passoAtual) classe += ' ativa';
+      html += '<div class="stepper-passo">';
+      html += '<div class="' + classe + '">' + (p.n < passoAtual ? '✓' : p.n) + '</div>';
+      if (i < passos.length - 1) {
+        html += '<div class="stepper-linha' + (p.n < passoAtual ? ' ok' : '') + '"></div>';
+      }
+      html += '</div>';
+    }
+    document.getElementById('stepper').innerHTML = html;
+  }
+  function irPasso(n) {
+    passoAtual = n;
+    document.getElementById('passo1').classList.toggle('hidden', n !== 1);
+    document.getElementById('passo2').classList.toggle('hidden', n !== 2);
+    document.getElementById('passo3').classList.toggle('hidden', n !== 3);
+    renderStepper();
+    if (n === 3) montarResumo();
+    window.scrollTo(0, 0);
+  }
+  function calcForca(s) {
+    var f = 0;
+    if (s.length >= 8) f++;
+    if (/[A-Z]/.test(s)) f++;
+    if (/[0-9]/.test(s)) f++;
+    if (/[^A-Za-z0-9]/.test(s)) f++;
+    return f;
+  }
+  function checkPasso1() {
+    var nome = document.getElementById('nome').value.trim();
+    var email = document.getElementById('email').value.trim();
+    var cpf = document.getElementById('cpf').value.replace(/\D/g, '');
+    var s1 = document.getElementById('senha').value;
+    var s2 = document.getElementById('senha2').value;
+    var ok = nome && email && cpf.length === 11 && s1.length >= 8 && s1 === s2;
+    document.getElementById('btnPasso1').disabled = !ok;
+    var wrap = document.getElementById('forcaWrap');
+    if (s1.length > 0) {
+      wrap.classList.remove('hidden');
+      var f = calcForca(s1);
+      var labels = ['', 'Fraca', 'Razoavel', 'Boa', 'Forte'];
+      document.getElementById('forcaLabel').textContent = labels[f] || '-';
+      var divs = document.getElementById('forcaBarras').children;
+      for (var i = 0; i < 4; i++) {
+        divs[i].className = i < f ? 'f' + f : '';
+      }
+    } else {
+      wrap.classList.add('hidden');
+    }
+    document.getElementById('senhaErro').classList.toggle('hidden', !s2 || s1 === s2);
+  }
+  document.getElementById('nome').addEventListener('input', checkPasso1);
+  document.getElementById('email').addEventListener('input', checkPasso1);
+  document.getElementById('cpf').addEventListener('input', function(e) { e.target.value = mascaraCPF(e.target.value); checkPasso1(); });
+  document.getElementById('senha').addEventListener('input', checkPasso1);
+  document.getElementById('senha2').addEventListener('input', checkPasso1);
+  document.getElementById('cnpj').addEventListener('input', function(e) {
+    e.target.value = mascaraCNPJ(e.target.value);
+    document.getElementById('btnConsultar').disabled = e.target.value.replace(/\D/g, '').length !== 14;
+    empresaData = null;
+    document.getElementById('empresaResultado').classList.add('hidden');
+    document.getElementById('btnPasso2').disabled = true;
+  });
+  function consultarCNPJ() {
+    var btn = document.getElementById('btnConsultar');
+    btn.disabled = true;
+    btn.textContent = 'Consultando...';
+    setTimeout(function() {
+      empresaData = {
+        razao: 'MARIA DA SILVA SERVICOS DIGITAIS',
+        fantasia: 'Silva Digital',
+        cnae: '6201-5/01',
+        cnaeDesc: 'Desenvolvimento de programas de computador sob encomenda',
+        abertura: '15/01/2023',
+        situacao: 'ATIVA',
+        endereco: 'Rua das Flores, 123 - Vila Mariana, Sao Paulo/SP, 04101-000'
+      };
+      btn.textContent = 'Consultar CNPJ';
+      btn.disabled = false;
+      var html = '<div class="sucesso-box">';
+      html += '<div class="flex justify-between items-start mb-3">';
+      html += '<div>';
+      html += '<div class="text-xs uppercase font-bold text-verde">✨ Dados preenchidos via BrasilAPI</div>';
+      html += '<h3 class="mt-2">' + empresaData.razao + '</h3>';
+      html += '<div class="text-sm text-suave">' + empresaData.fantasia + '</div>';
+      html += '</div>';
+      html += '<span class="badge badge-verde">' + empresaData.situacao + '</span>';
+      html += '</div>';
+      html += '<div class="grid grid-2 mt-3 text-sm">';
+      html += '<div><b>' + empresaData.cnae + '</b><br><span class="text-xs text-suave">' + empresaData.cnaeDesc + '</span></div>';
+      html += '<div><b>Aberto em</b><br><span class="text-xs text-suave">' + empresaData.abertura + '</span></div>';
+      html += '<div style="grid-column:span 2"><b>Endereco</b><br><span class="text-xs text-suave">' + empresaData.endereco + '</span></div>';
+      html += '</div></div>';
+      var box = document.getElementById('empresaResultado');
+      box.innerHTML = html;
+      box.classList.remove('hidden');
+      document.getElementById('btnPasso2').disabled = false;
+      toast('CNPJ encontrado!', { desc: 'Dados preenchidos automaticamente via BrasilAPI.' });
+    }, 1500);
+  }
+  function montarResumo() {
+    var nome = document.getElementById('nome').value;
+    var email = document.getElementById('email').value;
+    var cpf = document.getElementById('cpf').value;
+    var cnpj = document.getElementById('cnpj').value;
+    document.getElementById('resumoPessoal').innerHTML =
+      '<div><span class="text-suave">Nome:</span> <b>' + nome + '</b></div>' +
+      '<div><span class="text-suave">E-mail:</span> <b>' + email + '</b></div>' +
+      '<div><span class="text-suave">CPF:</span> <b class="tabular">' + cpf + '</b></div>';
+    document.getElementById('resumoEmpresa').innerHTML =
+      '<div><span class="text-suave">CNPJ:</span> <b class="tabular">' + cnpj + '</b></div>' +
+      '<div><span class="text-suave">Razao social:</span> <b>' + (empresaData ? empresaData.razao : '-') + '</b></div>' +
+      '<div><span class="text-suave">Atividade:</span> <b>' + (empresaData ? empresaData.cnae + ' — ' + empresaData.cnaeDesc : '-') + '</b></div>';
+  }
+  function atualizarFinalizar() {
+    document.getElementById('btnFinalizar').disabled = !document.getElementById('aceito').checked;
+  }
+  function finalizar() {
+    var b = document.getElementById('btnFinalizar');
+    b.disabled = true;
+    b.textContent = 'Finalizando...';
+    setTimeout(function() {
+      toast('Cadastro concluido!', { desc: 'Bem-vinda ao Meu Imposto.' });
+      setTimeout(function() { window.location.href = 'dashboard.html'; }, 700);
+    }, 1100);
+  }
+  renderStepper();
+</script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metricas — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/admin.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <div class="page-header">
+        <div class="titulo">
+          <div class="icone"><i data-lucide="bar-chart-3"></i></div>
+          <div><h1>Metricas detalhadas</h1><p>Analises profundas de uso da plataforma.</p></div>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-5">
+        <div class="kpi"><div><div class="kpi-label">Conversao landing→cadastro</div><div class="kpi-valor text-verde">10,1%</div></div><div class="kpi-icone verde">📈</div></div>
+        <div class="kpi"><div><div class="kpi-label">Retencao 30d</div><div class="kpi-valor">68%</div></div><div class="kpi-icone roxo">🔁</div></div>
+        <div class="kpi"><div><div class="kpi-label">Tempo medio sessao</div><div class="kpi-valor">4m 32s</div></div><div class="kpi-icone amarelo">⏱</div></div>
+        <div class="kpi"><div><div class="kpi-label">NPS</div><div class="kpi-valor">72</div></div><div class="kpi-icone amarelo">⭐</div></div>
+      </div>
+
+      <div class="grid grid-2 mb-5">
+        <div class="card card-shadow"><h3 class="mb-3">Funil de cadastro</h3><div id="funil"></div></div>
+        <div class="card card-shadow"><h3 class="mb-3">Crescimento (6 meses)</h3><div style="height:280px"><canvas id="g1"></canvas></div></div>
+      </div>
+
+      <div class="card card-shadow"><h3 class="mb-3">Tutoriais mais acessados</h3><div style="height:280px"><canvas id="g2"></canvas></div></div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'admin-metricas.html', titulo: 'Metricas', admin: true });
+  var funil = [
+    { etapa: 'Visitaram landing', n: 12400 },
+    { etapa: 'Iniciaram cadastro', n: 4800 },
+    { etapa: 'Completaram CNPJ', n: 2100 },
+    { etapa: 'Cadastro finalizado', n: 1247 }
+  ];
+  var max = funil[0].n;
+  var fh = '';
+  for (var i = 0; i < funil.length; i++) {
+    var f = funil[i];
+    var p = (f.n / max) * 100;
+    fh += '<div class="funil-item"><div class="flex justify-between text-sm mb-1"><span class="font-semibold">' + f.etapa + '</span><span class="font-bold tabular">' + numero(f.n) + '</span></div>';
+    fh += '<div class="funil-bar"><div style="width:' + p + '%">' + Math.round(p) + '%</div></div></div>';
+  }
+  document.getElementById('funil').innerHTML = fh;
+  new Chart(document.getElementById('g1'), {
+    type: 'line',
+    data: { labels: adminMetricas.crescimento.map(function(c) { return c.mes; }), datasets: [{ label: 'Usuarios', data: adminMetricas.crescimento.map(function(c) { return c.usuarios; }), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, borderWidth: 2.5, tension: 0.35 }] },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+  new Chart(document.getElementById('g2'), {
+    type: 'bar',
+    data: { labels: adminMetricas.topFeatures.map(function(f) { return f.nome; }), datasets: [{ label: 'Usos', data: adminMetricas.topFeatures.map(function(f) { return f.usos; }), backgroundColor: '#1e1b6b', borderRadius: 6 }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+  lucide.createIcons();
+</script>
+</body>
+</html>

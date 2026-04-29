@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emitir NFS-e — Meu Imposto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <a class="btn btn-ghost mb-4" href="nfse.html" style="display:inline-flex">← Voltar</a>
+
+      <div class="page-header">
+        <div class="titulo">
+          <div class="icone"><i data-lucide="file-text"></i></div>
+          <div><h1>Emitir NFS-e</h1><p>Preencha os dados abaixo. O prestador e voce.</p></div>
+        </div>
+      </div>
+
+      <form id="form" style="max-width:720px">
+
+        <div class="card muted-bg mb-3">
+          <h3 class="text-sm font-bold mb-3">Dados do prestador (voce)</h3>
+          <div class="grid grid-2 text-sm" id="prestador"></div>
+        </div>
+
+        <div class="card card-shadow mb-3">
+          <h3 class="text-sm font-bold mb-3">Dados do tomador</h3>
+          <div class="grid grid-2">
+            <div class="form-group"><label class="label">CPF / CNPJ</label><input class="input" required placeholder="000.000.000-00"></div>
+            <div class="form-group"><label class="label">Nome / Razao Social</label><input class="input" required placeholder="Nome do cliente"></div>
+            <div class="form-group"><label class="label">E-mail</label><input class="input" type="email" placeholder="cliente@email.com"></div>
+            <div class="form-group"><label class="label">Endereco</label><input class="input" placeholder="Rua, numero, cidade"></div>
+          </div>
+        </div>
+
+        <div class="card card-shadow mb-3">
+          <h3 class="text-sm font-bold mb-3">Dados do servico</h3>
+          <div class="form-group"><label class="label">Descricao</label><textarea class="textarea" rows="3" required placeholder="Descreva o servico prestado..."></textarea></div>
+          <div class="grid grid-3">
+            <div class="form-group"><label class="label">Codigo de servico</label><input class="input" value="01.05"></div>
+            <div class="form-group"><label class="label">Valor (R$)</label><input class="input" id="valor" placeholder="0,00" required></div>
+            <div class="form-group"><label class="label">Aliquota ISS (%)</label><input class="input" value="2"></div>
+          </div>
+        </div>
+
+        <div class="card mb-4 flex justify-between items-center" style="border:2px solid rgba(30,27,107,0.2); background: rgba(30,27,107,0.05)">
+          <span class="font-semibold">Valor total da nota</span>
+          <span class="text-2xl font-extrabold tabular text-roxo" id="totalNota">R$ 0,00</span>
+        </div>
+
+        <div class="flex gap-2">
+          <button class="btn btn-primary flex-1 btn-lg" type="submit">Emitir NFS-e</button>
+          <button class="btn btn-outline flex-1 btn-lg" type="button" onclick="simularFalha()">⚠ Simular API indisponivel</button>
+        </div>
+
+      </form>
+
+      <div class="modal-fundo hidden" id="modal" onclick="if(event.target===this)fechar()">
+        <div class="modal text-center">
+          <div style="width:48px;height:48px;border-radius:12px;background:rgba(16,185,129,0.15);color:var(--verde);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 14px">✓</div>
+          <h3>NFS-e emitida com sucesso!</h3>
+          <p class="text-suave mt-2">Numero da nota: <b class="tabular" id="numeroNota"></b></p>
+          <div class="flex gap-2 mt-5">
+            <button class="btn btn-outline flex-1" onclick="fechar()">Fechar</button>
+            <button class="btn btn-primary flex-1">⬇ Baixar PDF</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'nfse.html', titulo: 'NFS-e' });
+  document.getElementById('prestador').innerHTML =
+    '<div><span class="text-suave">CNPJ:</span> <b class="tabular">' + usuarioMEI.cnpj + '</b></div>' +
+    '<div><span class="text-suave">Razao social:</span> <b>' + usuarioMEI.razaoSocial + '</b></div>' +
+    '<div style="grid-column:span 2"><span class="text-suave">CNAE:</span> <b>' + usuarioMEI.cnae + '</b></div>';
+  document.getElementById('valor').addEventListener('input', function(e) {
+    document.getElementById('totalNota').textContent = 'R$ ' + (e.target.value || '0,00');
+  });
+  document.getElementById('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var n = String(Math.floor(20241000 + Math.random() * 999));
+    document.getElementById('numeroNota').textContent = n;
+    document.getElementById('modal').classList.remove('hidden');
+  });
+  function fechar() { document.getElementById('modal').classList.add('hidden'); }
+  function simularFalha() {
+    toast('API da prefeitura indisponivel', { tipo: 'erro', desc: 'Voce sera redirecionado para o tutorial manual.' });
+    setTimeout(function() { window.location.href = 'tutorial.html?id=1'; }, 1100);
+  }
+  lucide.createIcons();
+</script>
+</body>
+</html>

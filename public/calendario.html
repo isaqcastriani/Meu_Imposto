@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendario fiscal — Meu Imposto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/calendario.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <div class="page-header">
+        <div class="titulo">
+          <div class="icone"><i data-lucide="calendar"></i></div>
+          <div><h1>Calendario fiscal</h1><p>Todas as suas obrigacoes tributarias em um so lugar.</p></div>
+        </div>
+        <button class="btn btn-outline" onclick="toast('Notificacoes configuradas!')">🔔 Configurar notificacoes</button>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 1fr 320px; gap: 20px">
+        <div class="card card-shadow">
+          <div class="flex justify-between items-center mb-4">
+            <h3 id="mesAno"></h3>
+            <div class="flex gap-1">
+              <button class="btn btn-outline btn-sm" onclick="navegar(-1)">‹</button>
+              <button class="btn btn-outline btn-sm" onclick="navegar(0)">Hoje</button>
+              <button class="btn btn-outline btn-sm" onclick="navegar(1)">›</button>
+            </div>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-cab">DOM</div><div class="cal-cab">SEG</div><div class="cal-cab">TER</div><div class="cal-cab">QUA</div><div class="cal-cab">QUI</div><div class="cal-cab">SEX</div><div class="cal-cab">SAB</div>
+          </div>
+          <div class="cal-grid mt-2" id="grade"></div>
+        </div>
+
+        <div class="card card-shadow">
+          <h3 class="mb-3">Proximas obrigacoes</h3>
+          <div id="listaObr"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'calendario.html', titulo: 'Calendario' });
+  var meses = ['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var dataAtual = new Date();
+  function navegar(delta) {
+    if (delta === 0) dataAtual = new Date();
+    else dataAtual = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + delta, 1);
+    render();
+  }
+  function render() {
+    var ano = dataAtual.getFullYear();
+    var mes = dataAtual.getMonth();
+    document.getElementById('mesAno').textContent = meses[mes] + ' ' + ano;
+    var primeiroDia = new Date(ano, mes, 1).getDay();
+    var diasNoMes = new Date(ano, mes + 1, 0).getDate();
+    var hoje = new Date();
+    var html = '';
+    for (var i = 0; i < primeiroDia; i++) html += '<div class="cal-dia vazio"></div>';
+    for (var dia = 1; dia <= diasNoMes; dia++) {
+      var ob = null;
+      for (var k = 0; k < obrigacoes.length; k++) {
+        if (obrigacoes[k].data === dia && obrigacoes[k].mes === mes) { ob = obrigacoes[k]; break; }
+      }
+      var classe = 'cal-dia';
+      if (ob) classe += ' ' + ob.tipo;
+      if (dia === hoje.getDate() && mes === hoje.getMonth() && ano === hoje.getFullYear()) classe += ' hoje';
+      html += '<div class="' + classe + '" title="' + (ob ? ob.titulo : '') + '">';
+      html += '<span class="font-semibold">' + dia + '</span>';
+      if (ob) html += '<span class="marca ' + ob.tipo + '">' + ob.titulo + '</span>';
+      html += '</div>';
+    }
+    document.getElementById('grade').innerHTML = html;
+  }
+  var lh = '';
+  for (var i = 0; i < obrigacoes.length; i++) {
+    var o = obrigacoes[i];
+    var b = o.tipo === 'das' ? 'badge-amarelo' : 'badge-vermelho';
+    lh += '<div class="card muted-bg mb-2" style="padding:12px">' +
+      '<div class="flex justify-between items-center mb-1">' +
+      '<span class="badge ' + b + '">' + o.titulo + '</span>' +
+      '<span class="text-xs font-bold tabular">' + String(o.data).padStart(2,'0') + '/' + String(o.mes+1).padStart(2,'0') + '</span>' +
+      '</div><div class="text-xs text-suave">' + o.desc + '</div></div>';
+  }
+  document.getElementById('listaObr').innerHTML = lh;
+  render();
+  lucide.createIcons();
+</script>
+</body>
+</html>

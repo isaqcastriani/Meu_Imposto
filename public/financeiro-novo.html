@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novo lancamento — Meu Imposto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <a class="btn btn-ghost mb-4" href="financeiro.html" style="display:inline-flex">← Voltar</a>
+
+      <div class="page-header">
+        <div class="titulo">
+          <div class="icone"><i data-lucide="plus-circle"></i></div>
+          <div><h1>Novo lancamento</h1><p>Registre uma receita ou despesa.</p></div>
+        </div>
+      </div>
+
+      <div style="max-width:600px">
+        <form class="card card-shadow" id="form" style="padding:24px">
+
+          <div class="form-group">
+            <label class="label">Tipo</label>
+            <div class="tabs" style="max-width:none">
+              <button type="button" class="tab ativa" id="tabReceita" onclick="setTipo('receita')">Receita</button>
+              <button type="button" class="tab" id="tabDespesa" onclick="setTipo('despesa')">Despesa</button>
+            </div>
+          </div>
+
+          <div class="grid grid-2">
+            <div class="form-group">
+              <label class="label">Data</label>
+              <input class="input" type="date" id="data">
+            </div>
+            <div class="form-group">
+              <label class="label">Valor (R$)</label>
+              <input class="input" id="valor" placeholder="0,00" inputmode="decimal">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="label">Descricao</label>
+            <input class="input" id="descricao" placeholder="Ex: Projeto site - Cliente X">
+          </div>
+
+          <div class="form-group">
+            <label class="label">Categoria</label>
+            <select class="select" id="categoria"></select>
+          </div>
+
+          <div class="flex gap-2 mt-4" style="border-top:1px solid var(--borda); padding-top:16px">
+            <a class="btn btn-outline flex-1" href="financeiro.html">Cancelar</a>
+            <button class="btn btn-primary flex-1" type="submit">Salvar lancamento</button>
+          </div>
+
+        </form>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'financeiro.html', titulo: 'Financeiro' });
+  document.getElementById('data').valueAsDate = new Date();
+  var tipo = 'receita';
+  function setTipo(t) {
+    tipo = t;
+    document.getElementById('tabReceita').classList.toggle('ativa', t === 'receita');
+    document.getElementById('tabDespesa').classList.toggle('ativa', t === 'despesa');
+    var cats = t === 'receita'
+      ? ['Vendas', 'Servicos', 'Outros']
+      : ['Aluguel', 'Insumos', 'Marketing', 'Transporte', 'Outros'];
+    var sel = document.getElementById('categoria');
+    sel.innerHTML = '<option value="">Selecione...</option>' + cats.map(function(c) { return '<option>' + c + '</option>'; }).join('');
+  }
+  setTipo('receita');
+  document.getElementById('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    toast('Lancamento salvo!', { desc: tipo === 'receita' ? 'Receita registrada com sucesso.' : 'Despesa registrada.' });
+    setTimeout(function() { window.location.href = 'financeiro.html'; }, 700);
+  });
+  lucide.createIcons();
+</script>
+</body>
+</html>

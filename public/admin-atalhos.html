@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atalhos — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/admin.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <div class="page-header">
+        <div class="titulo">
+          <div class="icone"><i data-lucide="external-link"></i></div>
+          <div><h1>Gestao de atalhos</h1><p>Gerencie os links rapidos para portais Gov.br.</p></div>
+        </div>
+        <button class="btn btn-primary" onclick="toast('Abrindo formulario...')">+ Novo atalho</button>
+      </div>
+
+      <div class="card card-shadow" style="padding:0" id="lista"></div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'admin-atalhos.html', titulo: 'Atalhos', admin: true });
+  var html = '';
+  for (var i = 0; i < atalhosGov.length; i++) {
+    var a = atalhosGov[i];
+    html += '<div class="p-4 flex items-center gap-3" style="border-bottom:1px solid var(--borda)">';
+    html += '<span class="text-suave" style="cursor:grab">⋮⋮</span>';
+    html += '<div class="flex-1"><div class="flex items-center gap-2"><b>' + a.nome + '</b><span class="badge badge-outline">' + a.categoria + '</span></div>';
+    html += '<div class="text-xs text-suave" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + a.url + '</div></div>';
+    html += '<input type="checkbox" checked style="cursor:pointer">';
+    html += '<button class="btn btn-ghost btn-icon">✎</button><button class="btn btn-ghost btn-icon" style="color:var(--vermelho)">🗑</button></div>';
+  }
+  document.getElementById('lista').innerHTML = html;
+  lucide.createIcons();
+</script>
+</body>
+</html>

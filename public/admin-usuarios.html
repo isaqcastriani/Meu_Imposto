@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuarios — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/admin.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <div class="page-header">
+        <div class="titulo">
+          <div class="icone"><i data-lucide="users"></i></div>
+          <div><h1>Gestao de usuarios</h1><p id="subt"></p></div>
+        </div>
+      </div>
+
+      <div class="card card-shadow" style="padding:0">
+        <div class="p-4 flex gap-2 flex-wrap" style="border-bottom:1px solid var(--borda)">
+          <input class="input flex-1" id="q" placeholder="🔍 Buscar por nome, e-mail ou CNPJ..." oninput="render()" style="min-width:200px">
+          <select class="select" style="width:auto"><option>Todos</option><option>Ativos</option><option>Inativos</option></select>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tabela">
+            <thead><tr><th>Nome</th><th>E-mail</th><th>CNPJ</th><th>Cadastro</th><th>Status</th><th></th></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'admin-usuarios.html', titulo: 'Usuarios', admin: true });
+  document.getElementById('subt').textContent = usuariosAdmin.length + ' usuarios cadastrados';
+  function render() {
+    var q = document.getElementById('q').value.toLowerCase();
+    var lista = usuariosAdmin.filter(function(u) {
+      return u.nome.toLowerCase().indexOf(q) !== -1 || u.email.indexOf(q) !== -1 || u.cnpj.indexOf(q) !== -1;
+    });
+    var html = '';
+    for (var i = 0; i < lista.length; i++) {
+      var u = lista[i];
+      html += '<tr><td class="font-semibold">' + u.nome + '</td><td class="text-sm text-suave">' + u.email + '</td><td class="tabular text-xs">' + u.cnpj + '</td><td class="tabular text-xs">' + u.cadastro + '</td>';
+      html += '<td><span class="badge ' + (u.status === 'Ativo' ? 'badge-verde' : 'badge-cinza') + '">' + u.status + '</span></td>';
+      html += '<td class="text-right"><button class="btn btn-ghost btn-icon">⋮</button></td></tr>';
+    }
+    document.getElementById('tbody').innerHTML = html;
+  }
+  render();
+  lucide.createIcons();
+</script>
+</body>
+</html>

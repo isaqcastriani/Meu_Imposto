@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Meu Imposto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="icon" href="assets/img/logo.png">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <div class="flex justify-between items-center flex-wrap gap-3 mb-6">
+        <div>
+          <h1 class="text-2xl font-extrabold">Ola, Maria 👋</h1>
+          <p class="text-sm text-suave mt-1" id="hojeData"></p>
+        </div>
+        <a class="btn btn-primary" href="financeiro-novo.html">+ Novo lancamento</a>
+      </div>
+
+      <div class="grid grid-4 mb-6" id="kpis"></div>
+
+      <div class="card card-shadow mb-6" id="cardTeto"></div>
+
+      <div class="grid mb-6" style="grid-template-columns: 1.5fr 1fr; gap:20px" id="gridGraficos">
+        <div class="card card-shadow">
+          <div class="flex justify-between items-center">
+            <div>
+              <h3>Faturamento mensal</h3>
+              <p class="text-xs text-suave">Ultimos 12 meses</p>
+            </div>
+            <a class="btn btn-ghost btn-sm" href="relatorios.html">Ver relatorios →</a>
+          </div>
+          <div style="height:280px;margin-top:14px"><canvas id="graficoFat"></canvas></div>
+        </div>
+
+        <div class="card card-shadow">
+          <h3>🔔 Alertas</h3>
+          <p class="text-xs text-suave mb-3" id="alertasCount"></p>
+          <div id="listaAlertas"></div>
+        </div>
+      </div>
+
+      <h3 class="mb-3">Atalhos rapidos</h3>
+      <div class="grid" style="grid-template-columns: repeat(6, 1fr); gap: 12px" id="gridAtalhos"></div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'dashboard.html', titulo: 'Dashboard' });
+  var hoje = new Date();
+  var dataStr = hoje.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+  document.getElementById('hojeData').innerHTML = dataStr.charAt(0).toUpperCase() + dataStr.slice(1) +
+    ' · <span class="text-amarelo font-semibold">DAS de novembro vence em 12 dias</span>';
+  var mesAtual = hoje.getMonth();
+  var receitasMes = 0, despesasMes = 0;
+  for (var i = 0; i < lancamentos.length; i++) {
+    var l = lancamentos[i];
+    if (new Date(l.data).getMonth() === mesAtual) {
+      if (l.tipo === 'receita') receitasMes += l.valor;
+      else despesasMes += l.valor;
+    }
+  }
+  var saldoMes = receitasMes - despesasMes;
+  var restante = TETO_MEI - faturamentoAnual;
+  var kpisHtml = '';
+  function kpiCard(label, valor, hint, icone, cor) {
+    return '<div class="kpi"><div><div class="kpi-label">' + label + '</div>' +
+      '<div class="kpi-valor">' + valor + '</div>' +
+      (hint ? '<div class="kpi-hint">' + hint + '</div>' : '') +
+      '</div><div class="kpi-icone ' + cor + '"><i data-lucide="' + icone + '"></i></div></div>';
+  }
+  kpisHtml += kpiCard('Faturamento no ano', brl(faturamentoAnual), '<span class="text-verde font-semibold">↑ 12,4% vs mes anterior</span>', 'wallet', 'roxo');
+  kpisHtml += kpiCard('DAS do mes', brl(dasAtual.total), '<span class="text-amarelo font-semibold">Pendente · vence ' + dasAtual.vencimento + '</span>', 'calculator', 'amarelo');
+  kpisHtml += kpiCard('Saldo do mes', brl(saldoMes), brl(receitasMes) + ' − ' + brl(despesasMes), saldoMes >= 0 ? 'trending-up' : 'trending-down', saldoMes >= 0 ? 'verde' : 'vermelho');
+  kpisHtml += kpiCard('Proxima obrigacao', 'DAS-MEI', dasAtual.vencimento + ' · em 12 dias', 'calendar', 'amarelo');
+  document.getElementById('kpis').innerHTML = kpisHtml;
+  var corTeto = percentTeto >= 90 ? 'vermelho' : (percentTeto >= 70 ? 'amarelo' : 'verde');
+  var labelTeto = percentTeto >= 90 ? 'Critico' : (percentTeto >= 70 ? 'Atencao' : 'Tranquilo');
+  document.getElementById('cardTeto').innerHTML =
+    '<div class="flex justify-between items-center flex-wrap gap-2 mb-4">' +
+      '<div><div class="text-xs uppercase font-bold text-suave">Limite anual MEI</div>' +
+      '<h2 class="text-2xl font-extrabold mt-1">Voce usou ' + pct(percentTeto) + ' do teto</h2></div>' +
+      '<span class="badge badge-' + corTeto + '">' + labelTeto + '</span>' +
+    '</div>' +
+    '<div class="progress"><div class="progress-bar ' + corTeto + '" style="width:' + percentTeto + '%"></div></div>' +
+    '<div class="grid grid-3 mt-4">' +
+      '<div><div class="text-xs text-suave font-semibold">Faturado</div><div class="text-xl font-bold tabular">' + brl(faturamentoAnual) + '</div></div>' +
+      '<div><div class="text-xs text-suave font-semibold">Disponivel</div><div class="text-xl font-bold tabular text-verde">' + brl(restante) + '</div></div>' +
+      '<div><div class="text-xs text-suave font-semibold">Teto anual</div><div class="text-xl font-bold tabular">' + brl(TETO_MEI) + '</div></div>' +
+    '</div>';
+  document.getElementById('alertasCount').textContent = alertas.length + ' notificacoes ativas';
+  var alertasHtml = '';
+  for (var i = 0; i < alertas.length; i++) {
+    var a = alertas[i];
+    alertasHtml += '<div class="alerta ' + a.tipo + '">' +
+      '<div class="alerta-icone">' + (a.tipo === 'warning' ? '⚠' : '🔔') + '</div>' +
+      '<div><div class="font-semibold text-sm">' + a.titulo + '</div>' +
+      '<div class="text-xs text-suave mt-1">' + a.desc + '</div>' +
+      '<div class="text-xs text-suave mt-1">' + a.quando + '</div></div></div>';
+  }
+  document.getElementById('listaAlertas').innerHTML = alertasHtml;
+  var atalhos = [
+    { url: 'nfse-nova.html', icone: 'file-text', label: 'Emitir NFS-e', cor: 'roxo' },
+    { url: 'financeiro-novo.html', icone: 'plus-circle', label: 'Lancar receita', cor: 'verde' },
+    { url: 'das.html', icone: 'calculator', label: 'Calcular DAS', cor: 'amarelo' },
+    { url: 'calendario.html', icone: 'calendar', label: 'Calendario', cor: 'verde' },
+    { url: 'simulador.html', icone: 'trending-up', label: 'Simular', cor: 'amarelo' },
+    { url: 'tutoriais.html', icone: 'book-open', label: 'Tutoriais', cor: 'roxo' }
+  ];
+  var atHtml = '';
+  for (var i = 0; i < atalhos.length; i++) {
+    var a = atalhos[i];
+    atHtml += '<a class="atalho-rapido" href="' + a.url + '">' +
+      '<div class="ic ' + (a.cor === 'roxo' ? 'kpi-icone roxo' : a.cor === 'verde' ? 'kpi-icone verde' : 'kpi-icone amarelo') + '"><i data-lucide="' + a.icone + '"></i></div>' +
+      '<div class="text-xs font-semibold">' + a.label + '</div></a>';
+  }
+  document.getElementById('gridAtalhos').innerHTML = atHtml;
+  var ctx = document.getElementById('graficoFat').getContext('2d');
+  var grad = ctx.createLinearGradient(0, 0, 0, 280);
+  grad.addColorStop(0, 'rgba(30, 27, 107, 0.4)');
+  grad.addColorStop(1, 'rgba(30, 27, 107, 0)');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: faturamentoMensal.map(function(m) { return m.mes; }),
+      datasets: [{
+        label: 'Receita',
+        data: faturamentoMensal.map(function(m) { return m.valor; }),
+        borderColor: '#1e1b6b',
+        backgroundColor: grad,
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.35
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function(c) { return brl(c.parsed.y); } } }
+      },
+      scales: {
+        y: { ticks: { callback: function(v) { return 'R$ ' + (v/1000) + 'k'; } } }
+      }
+    }
+  });
+  setTimeout(function() { lucide.createIcons(); }, 50);
+</script>
+</body>
+</html>

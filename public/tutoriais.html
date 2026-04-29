@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutoriais — Meu Imposto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <div class="page-header">
+        <div class="titulo">
+          <div class="icone"><i data-lucide="book-open"></i></div>
+          <div><h1>Central de tutoriais</h1><p>Aprenda tudo sobre o seu MEI no seu ritmo.</p></div>
+        </div>
+      </div>
+
+      <div class="cta-final mb-5" style="padding:32px">
+        <p class="text-xs uppercase font-bold mb-3" style="opacity:0.85">✨ Recomendado para voce</p>
+        <div class="grid grid-3" id="recomendados"></div>
+      </div>
+
+      <div class="flex gap-3 mb-5 flex-wrap">
+        <input class="input flex-1" id="q" placeholder="🔍 Buscar tutoriais..." oninput="renderLista()">
+        <div class="flex gap-2" id="categorias"></div>
+      </div>
+
+      <div class="grid grid-3" id="lista"></div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'tutoriais.html', titulo: 'Tutoriais' });
+  var cats = ['Todas', 'Cadastro', 'Imposto', 'NFS-e', 'Declaracoes', 'Beneficios', 'Outros'];
+  var catAtiva = 'Todas';
+  var rh = '';
+  for (var i = 0; i < 3; i++) {
+    var t = tutoriais[i];
+    rh += '<a href="tutorial.html?id=' + t.id + '" style="padding:16px;border-radius:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;display:block">' +
+      '<div style="font-size:20px;color:var(--amarelo)">📖</div>' +
+      '<div class="font-bold text-sm mt-2">' + t.titulo + '</div>' +
+      '<div class="text-xs mt-1" style="opacity:0.75">' + t.tempo + ' · ' + t.dificuldade + '</div></a>';
+  }
+  document.getElementById('recomendados').innerHTML = rh;
+  var ch = '';
+  for (var i = 0; i < cats.length; i++) {
+    ch += '<button class="btn ' + (cats[i] === catAtiva ? 'btn-primary' : 'btn-outline') + ' btn-sm" onclick="setCat(\'' + cats[i] + '\')">' + cats[i] + '</button>';
+  }
+  document.getElementById('categorias').innerHTML = ch;
+  function setCat(c) { catAtiva = c; renderLista(); document.getElementById('categorias').innerHTML = cats.map(function(x) { return '<button class="btn ' + (x === catAtiva ? 'btn-primary' : 'btn-outline') + ' btn-sm" onclick="setCat(\'' + x + '\')">' + x + '</button>'; }).join(''); }
+  function renderLista() {
+    var q = document.getElementById('q').value.toLowerCase();
+    var lista = tutoriais.filter(function(t) {
+      return (catAtiva === 'Todas' || t.categoria === catAtiva) && t.titulo.toLowerCase().indexOf(q) !== -1;
+    });
+    var html = '';
+    for (var i = 0; i < lista.length; i++) {
+      var t = lista[i];
+      html += '<a href="tutorial.html?id=' + t.id + '" class="card" style="display:block">' +
+        '<div class="kpi-icone roxo mb-3">📚</div>' +
+        '<span class="badge badge-outline mb-2">' + t.categoria + '</span>' +
+        '<h3 class="text-sm">' + t.titulo + '</h3>' +
+        '<div class="flex justify-between text-xs text-suave mt-3" style="border-top:1px solid var(--borda);padding-top:10px">' +
+        '<span>' + t.tempo + '</span><span>' + t.dificuldade + '</span></div></a>';
+    }
+    document.getElementById('lista').innerHTML = html;
+  }
+  renderLista();
+  lucide.createIcons();
+</script>
+</body>
+</html>

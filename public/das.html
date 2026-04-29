@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DAS — Meu Imposto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <div class="page-header">
+        <div class="titulo">
+          <div class="icone"><i data-lucide="calculator"></i></div>
+          <div><h1>Calculadora de DAS</h1><p>Documento de Arrecadacao do Simples Nacional para o MEI.</p></div>
+        </div>
+      </div>
+
+      <div class="card card-shadow flex items-center gap-4 mb-5 flex-wrap">
+        <div class="kpi-icone roxo"><i data-lucide="building-2"></i></div>
+        <div class="flex-1" id="atividadeBox"></div>
+        <span class="badge badge-roxo">Tipo: Servicos</span>
+      </div>
+
+      <div class="grid mb-5" style="grid-template-columns: 1.2fr 1fr; gap: 20px">
+        <div class="card card-shadow text-center" style="padding: 36px; background: linear-gradient(to bottom right, #fff, #f3f1fa)">
+          <div class="text-xs uppercase font-bold text-suave">DAS deste mes</div>
+          <div class="text-roxo font-extrabold tabular" style="font-size: 56px; margin: 12px 0" id="dasTotal"></div>
+          <div class="text-amarelo font-semibold" id="dasVenc"></div>
+          <button class="btn btn-primary btn-lg mt-5" onclick="toast('Redirecionando para o PGMEI...', { tipo: 'info' })">📄 Gerar boleto no PGMEI ↗</button>
+        </div>
+
+        <div class="card card-shadow">
+          <h3 class="mb-3">Detalhamento</h3>
+          <div id="detalheDas"></div>
+          <div class="flex justify-between mt-3" style="border-top:2px solid var(--borda); padding-top: 12px">
+            <b>Total</b>
+            <b class="tabular text-lg" id="dasTotal2"></b>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-shadow" style="padding:0">
+        <div class="p-5" style="border-bottom:1px solid var(--borda)">
+          <h3>Historico</h3>
+          <p class="text-xs text-suave">Ultimos 6 DAS gerados</p>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tabela">
+            <thead><tr><th>Competencia</th><th>Vencimento</th><th>Valor</th><th>Status</th></tr></thead>
+            <tbody id="hist"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'das.html', titulo: 'DAS' });
+  document.getElementById('atividadeBox').innerHTML =
+    '<div class="text-xs text-suave font-semibold">Atividade detectada</div>' +
+    '<div class="font-bold">' + usuarioMEI.cnae + ' — ' + usuarioMEI.cnaeDesc + '</div>';
+  document.getElementById('dasTotal').textContent = brl(dasAtual.total);
+  document.getElementById('dasTotal2').textContent = brl(dasAtual.total);
+  document.getElementById('dasVenc').textContent = 'Vence em ' + dasAtual.vencimento;
+  var detalhes = [
+    { label: 'INSS', desc: '5% do salario minimo', valor: dasAtual.inss },
+    { label: 'ISS', desc: 'Apenas servicos', valor: dasAtual.iss },
+    { label: 'ICMS', desc: 'Comercio e industria', valor: dasAtual.icms }
+  ];
+  var dh = '';
+  for (var i = 0; i < detalhes.length; i++) {
+    var d = detalhes[i];
+    dh += '<div class="flex justify-between items-center p-3 mb-2" style="border:1px solid var(--borda); border-radius:10px">' +
+      '<div><div class="font-bold text-roxo">' + d.label + '</div><div class="text-xs text-suave">' + d.desc + '</div></div>' +
+      '<div class="font-bold tabular">' + brl(d.valor) + '</div></div>';
+  }
+  document.getElementById('detalheDas').innerHTML = dh;
+  var hh = '';
+  for (var i = 0; i < historicoDAS.length; i++) {
+    var h = historicoDAS[i];
+    var cor = h.status === 'Pago' ? 'badge-verde' : 'badge-amarelo';
+    hh += '<tr><td class="font-semibold">' + h.competencia + '</td><td class="tabular">' + h.vencimento + '</td><td class="font-bold tabular">' + brl(h.valor) + '</td><td><span class="badge ' + cor + '">' + h.status + '</span></td></tr>';
+  }
+  document.getElementById('hist').innerHTML = hh;
+  lucide.createIcons();
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NFS-e — Meu Imposto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <div class="page-header">
+        <div class="titulo">
+          <div class="icone"><i data-lucide="file-text"></i></div>
+          <div><h1>Notas Fiscais de Servico</h1><p>Emita e gerencie suas NFS-e com poucos cliques.</p></div>
+        </div>
+        <a class="btn btn-primary" href="nfse-nova.html">+ Emitir nova NFS-e</a>
+      </div>
+
+      <div class="card card-shadow" style="padding:0; overflow-x:auto">
+        <table class="tabela">
+          <thead><tr><th>Numero</th><th>Data</th><th>Tomador</th><th>Valor</th><th>Status</th><th class="text-right">Acoes</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'nfse.html', titulo: 'NFS-e' });
+  var html = '';
+  for (var i = 0; i < nfseList.length; i++) {
+    var n = nfseList[i];
+    var b = n.status === 'Emitida' ? 'badge-verde' : (n.status === 'Cancelada' ? 'badge-vermelho' : 'badge-amarelo');
+    html += '<tr><td class="font-bold tabular text-xs">' + n.numero + '</td><td class="tabular text-sm">' + n.data + '</td><td class="font-semibold">' + n.tomador + '</td><td class="font-bold tabular">' + brl(n.valor) + '</td><td><span class="badge ' + b + '">' + n.status + '</span></td><td class="text-right"><button class="btn btn-ghost btn-icon">👁</button><button class="btn btn-ghost btn-icon">⬇</button></td></tr>';
+  }
+  document.getElementById('tbody').innerHTML = html;
+  lucide.createIcons();
+</script>
+</body>
+</html>

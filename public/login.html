@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrar — Meu Imposto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/auth.css">
+  <link rel="icon" href="assets/img/logo.png">
+</head>
+<body>
+
+<div class="auth-tela">
+
+  <div class="auth-brand">
+    <div class="conteudo">
+      <a class="logo" href="index.html">
+        <img src="assets/img/logo.png" alt="Meu Imposto">
+        <span class="logo-texto">
+          <span class="logo-titulo" style="color:#fff">Meu Imposto</span>
+          <span class="logo-subtitulo" style="color:rgba(255,255,255,0.7)">MEI sem complicacao</span>
+        </span>
+      </a>
+      <h2>O painel do MEI brasileiro.</h2>
+      <p>Gerencie DAS, NFS-e, calendario fiscal e beneficios em um unico lugar.</p>
+      <div class="stats">
+        <div>1.247 MEIs</div>
+        <div>R$ 0 gratis</div>
+        <div>100% LGPD</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-form">
+    <div class="auth-form-wrap">
+      <h1 class="text-2xl font-extrabold">Bem-vindo de volta</h1>
+      <p class="text-suave mt-2">Entre com seu CNPJ ou e-mail para continuar.</p>
+
+      <form id="formLogin" class="mt-5">
+        <div class="form-group">
+          <label class="label">E-mail</label>
+          <input class="input" type="email" value="maria@silva.me" required>
+        </div>
+        <div class="form-group">
+          <div class="flex justify-between items-center mb-1">
+            <label class="label" style="margin:0">Senha</label>
+            <a href="recuperar-senha.html" class="text-xs text-roxo font-semibold">Esqueci minha senha</a>
+          </div>
+          <input class="input" type="password" value="demo1234" required>
+        </div>
+        <button class="btn btn-primary w-full btn-lg" type="submit">Entrar</button>
+      </form>
+
+      <div class="divisor"><span>OU ACESSE UMA DEMO</span></div>
+
+      <div class="grid grid-2">
+        <button class="btn btn-outline" onclick="entrar('dashboard.html')">👤 Como MEI</button>
+        <button class="btn btn-outline" onclick="entrar('admin.html')">🛡 Como Admin</button>
+      </div>
+
+      <p class="text-center text-sm text-suave mt-6">
+        Ainda nao tem conta? <a href="cadastro.html" class="text-roxo font-semibold">Cadastre-se gratis</a>
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script>
+  function entrar(destino) {
+    toast("Bem-vinda, Maria!", { desc: "Sessao demo iniciada com sucesso." });
+    setTimeout(function() { window.location.href = destino; }, 700);
+  }
+  document.getElementById('formLogin').addEventListener('submit', function(e) {
+    e.preventDefault();
+    entrar('dashboard.html');
+  });
+</script>
+</body>
+</html>

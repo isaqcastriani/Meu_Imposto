@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financeiro — Meu Imposto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="app-conteudo">
+    <header class="topbar" id="topbar"></header>
+    <main class="app-main">
+
+      <div class="page-header">
+        <div class="titulo">
+          <div class="icone"><i data-lucide="wallet"></i></div>
+          <div><h1>Financeiro</h1><p>Receitas, despesas e fluxo de caixa do seu MEI.</p></div>
+        </div>
+        <a class="btn btn-primary" href="financeiro-novo.html">+ Novo lancamento</a>
+      </div>
+
+      <div class="grid grid-3 mb-5" id="kpis"></div>
+
+      <div class="grid" style="grid-template-columns: 1fr 320px; gap: 20px">
+        <div class="card" style="padding:0">
+          <div class="p-4" style="border-bottom:1px solid var(--borda); display:flex; gap:8px; align-items:center; flex-wrap:wrap">
+            <span class="text-suave">Filtro:</span>
+            <select class="select" style="width:auto" id="filtroTipo" onchange="renderTabela()">
+              <option value="todos">Todos</option>
+              <option value="receita">Receitas</option>
+              <option value="despesa">Despesas</option>
+            </select>
+            <input class="input" placeholder="Buscar..." style="width:200px" id="filtroQ" oninput="renderTabela()">
+          </div>
+          <div style="overflow-x:auto">
+            <table class="tabela">
+              <thead>
+                <tr><th>Data</th><th>Descricao</th><th>Categoria</th><th>Tipo</th><th class="text-right">Valor</th><th></th></tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+          <div class="p-3 text-xs text-suave flex justify-between" style="border-top:1px solid var(--borda)">
+            <span id="totalLanc"></span>
+            <div class="flex gap-1">
+              <button class="btn btn-outline btn-sm" disabled>Anterior</button>
+              <button class="btn btn-outline btn-sm">Proxima</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Por categoria</h3>
+          <p class="text-xs text-suave mb-3">Distribuicao dos lancamentos</p>
+          <div style="height:220px"><canvas id="graficoCat"></canvas></div>
+          <div id="legenda" class="mt-3"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  renderShell({ pagina: 'financeiro.html', titulo: 'Financeiro' });
+  var hoje = new Date();
+  var receitas = 0, despesas = 0;
+  for (var i = 0; i < lancamentos.length; i++) {
+    var l = lancamentos[i];
+    if (new Date(l.data).getMonth() === hoje.getMonth()) {
+      if (l.tipo === 'receita') receitas += l.valor;
+      else despesas += l.valor;
+    }
+  }
+  document.getElementById('kpis').innerHTML =
+    '<div class="kpi"><div><div class="kpi-label">Receitas do mes</div><div class="kpi-valor text-verde">' + brl(receitas) + '</div></div><div class="kpi-icone verde"><i data-lucide="trending-up"></i></div></div>' +
+    '<div class="kpi"><div><div class="kpi-label">Despesas do mes</div><div class="kpi-valor text-vermelho">' + brl(despesas) + '</div></div><div class="kpi-icone vermelho"><i data-lucide="trending-down"></i></div></div>' +
+    '<div class="kpi"><div><div class="kpi-label">Saldo</div><div class="kpi-valor">' + brl(receitas - despesas) + '</div></div><div class="kpi-icone roxo"><i data-lucide="wallet"></i></div></div>';
+  var CORES = ['#1e1b6b', '#f5c518', '#10b981', '#f59e0b', '#dc2626', '#4f46d6'];
+  var grafico = null;
+  function renderTabela() {
+    var tipo = document.getElementById('filtroTipo').value;
+    var q = document.getElementById('filtroQ').value.toLowerCase();
+    var lista = lancamentos.filter(function(l) {
+      if (tipo !== 'todos' && l.tipo !== tipo) return false;
+      if (q && l.descricao.toLowerCase().indexOf(q) === -1) return false;
+      return true;
+    });
+    var html = '';
+    for (var i = 0; i < lista.length; i++) {
+      var l = lista[i];
+      var cor = l.tipo === 'receita' ? 'text-verde' : 'text-vermelho';
+      var sinal = l.tipo === 'receita' ? '+' : '−';
+      var badge = l.tipo === 'receita' ? 'badge-verde' : 'badge-vermelho';
+      html += '<tr>' +
+        '<td class="tabular text-sm">' + dataBR(l.data) + '</td>' +
+        '<td class="font-semibold">' + l.descricao + '</td>' +
+        '<td class="text-sm text-suave">' + l.categoria + '</td>' +
+        '<td><span class="badge ' + badge + '">' + l.tipo + '</span></td>' +
+        '<td class="text-right font-bold tabular ' + cor + '">' + sinal + ' ' + brl(l.valor) + '</td>' +
+        '<td class="text-right"><button class="btn btn-ghost btn-icon">✎</button></td>' +
+        '</tr>';
+    }
+    document.getElementById('tbody').innerHTML = html;
+    document.getElementById('totalLanc').textContent = lista.length + ' lancamentos';
+    var porCat = {};
+    for (var i = 0; i < lista.length; i++) {
+      var l = lista[i];
+      porCat[l.categoria] = (porCat[l.categoria] || 0) + l.valor;
+    }
+    var nomes = Object.keys(porCat);
+    var valores = nomes.map(function(n) { return porCat[n]; });
+    if (grafico) grafico.destroy();
+    grafico = new Chart(document.getElementById('graficoCat').getContext('2d'), {
+      type: 'doughnut',
+      data: { labels: nomes, datasets: [{ data: valores, backgroundColor: CORES, borderWidth: 2, borderColor: '#fff' }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(c) { return c.label + ': ' + brl(c.parsed); } } } } }
+    });
+    var leg = '';
+    for (var i = 0; i < nomes.length; i++) {
+      leg += '<div class="flex justify-between text-xs mb-1"><span class="flex items-center gap-2"><span style="width:10px;height:10px;background:' + CORES[i % CORES.length] + ';border-radius:2px"></span>' + nomes[i] + '</span><span class="font-semibold tabular">' + brl(valores[i]) + '</span></div>';
+    }
+    document.getElementById('legenda').innerHTML = leg;
+    lucide.createIcons();
+  }
+  renderTabela();
+  lucide.createIcons();
+</script>
+</body>
+</html>

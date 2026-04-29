@@ -120,24 +120,13 @@ Gráficos de faturamento, despesas e lucro com exportação em PDF.
 ## 🛠️ Tecnologias
 
 ### Front-end
-- ⚛️ **React 18** + **TypeScript**
-- ⚡ **Vite** como build tool
-- 🎨 **Tailwind CSS** + **shadcn/ui**
-- 🧭 **React Router v6**
-- 📊 **Recharts** para gráficos
-- 📝 **React Hook Form** + **Zod** para validação
-- 🔔 **Sonner** para notificações
-- 🎯 **Lucide React** para ícones
+- 🎨 **CSS** 
+- 🎨 **HTML** 
+- 🎨 **JS** 
 
-### Back-end
-- 🟢 Node.js / Express *(a definir)*
-- 🔐 **JWT** para autenticação
-- 🗄️ Banco de dados relacional
+### Back-end (planejamento)
 
-### Integrações
-- 🏛️ **BrasilAPI** / **ReceitaWS** — consulta de CNPJ
-- 🧾 **API Nacional da NFS-e** — emissão de notas
-- 🔑 **Gov.br OAuth2** *(futuro)*
+### Integrações(planejamento)
 
 ---
 
@@ -195,70 +184,6 @@ Gráficos de faturamento, despesas e lucro com exportação em PDF.
 
 ---
 
-## 🚀 Como Rodar
-
-### Pré-requisitos
-- Node.js 18+
-- npm ou yarn
-
-### Instalação
-
-```bash
-# Clone o repositório
-git clone https://github.com/seu-usuario/meu-imposto.git
-
-# Entre no diretório
-cd meu-imposto
-
-# Instale as dependências
-npm install
-
-# Rode em modo desenvolvimento
-npm run dev
-```
-
-A aplicação estará disponível em `http://localhost:5173`.
-
-### Scripts disponíveis
-
-```bash
-npm run dev       # Inicia o servidor de desenvolvimento
-npm run build     # Gera a build de produção
-npm run preview   # Visualiza a build de produção localmente
-npm run lint      # Roda o linter
-```
-
----
-
-## 📂 Estrutura de Pastas
-
-```
-meu-imposto/
-├── public/                    # Arquivos estáticos
-├── src/
-│   ├── assets/                # Imagens, ícones, fontes
-│   ├── components/            # Componentes reutilizáveis
-│   │   ├── ui/                # Componentes do shadcn/ui
-│   │   └── layout/            # Sidebar, Topbar, etc.
-│   ├── pages/                 # Páginas da aplicação
-│   │   ├── auth/              # Login, Cadastro, Recuperação
-│   │   ├── mei/               # Dashboard, Financeiro, DAS...
-│   │   └── admin/             # Painel administrativo
-│   ├── data/                  # Mock data e tipos
-│   ├── hooks/                 # Custom hooks
-│   ├── lib/                   # Utilitários (formatadores, validadores)
-│   ├── routes/                # Configuração de rotas
-│   ├── App.tsx
-│   └── main.tsx
-├── docs/                      # Documentação
-│   ├── requisitos.md
-│   ├── casos-de-uso.md
-│   └── arquitetura.md
-└── README.md
-```
-
----
-
 ## 🎨 Design System
 
 | Elemento | Valor |
@@ -272,50 +197,13 @@ meu-imposto/
 
 ---
 
-## 🗺️ Roadmap
-
-- [x] Documentação de requisitos e casos de uso
-- [x] Definição da arquitetura
-- [ ] Front-end completo com mock data
-- [ ] Back-end com autenticação JWT
-- [ ] Integração com BrasilAPI
-- [ ] Integração com API NFS-e Nacional
-- [ ] Painel administrativo funcional
-- [ ] Testes automatizados
-- [ ] Deploy em produção
-- [ ] Login via Gov.br (OAuth2)
-
----
-
-## 📚 Documentação
-
-- 📄 [Documento de Requisitos](./docs/requisitos.md)
-- 📄 [Casos de Uso](./docs/casos-de-uso.md)
-- 📄 [Arquitetura](./docs/arquitetura.md)
-
----
-
 ## 👥 Equipe
 
 | Nome | Função | GitHub |
 |------|--------|--------|
-| _Em definição_ | Desenvolvimento | - |
-| _Em definição_ | Desenvolvimento | - |
-| _Em definição_ | Desenvolvimento | - |
-
----
-
-## 📖 Glossário
-
-| Termo | Significado |
-|-------|-------------|
-| **MEI** | Microempreendedor Individual |
-| **DAS** | Documento de Arrecadação do Simples Nacional |
-| **DASN-SIMEI** | Declaração Anual do Simples Nacional para o MEI |
-| **CNAE** | Classificação Nacional de Atividades Econômicas |
-| **NFS-e** | Nota Fiscal de Serviços Eletrônica |
-| **Teto MEI** | Limite de R$ 81.000,00/ano de faturamento bruto |
-| **PGMEI** | Programa Gerador do DAS do MEI |
+| _Isaque Castriani_ | Líder/Dev | - |
+| _Luan Dias_ | Designer/Dev | - |
+| _João Praia_ | Dev | - |
 
 ---
 

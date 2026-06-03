@@ -1,3 +1,24 @@
+// ===== Guarda de autenticacao =====
+// Roda assim que o shell carrega. Toda pagina interna inclui este arquivo,
+// entao quem nao tiver token (nao logou) e mandado de volta pro login.
+(function () {
+  if (!localStorage.getItem('mi_token')) {
+    window.location.replace('login.html');
+  }
+})();
+
+// Logout real: limpa a sessao e volta pro login.
+function sair() {
+  localStorage.removeItem('mi_token');
+  localStorage.removeItem('mi_user');
+  window.location.replace('login.html');
+}
+
+// Usuario logado (do token guardado no login).
+function usuarioLogado() {
+  try { return JSON.parse(localStorage.getItem('mi_user') || 'null'); } catch (e) { return null; }
+}
+
 var MENU_MEI = [
   {
     titulo: "Principal",
@@ -74,7 +95,7 @@ function montarSidebar(paginaAtiva, ehAdmin) {
   } else {
     html += '<a class="sidebar-link" href="perfil.html"><i data-lucide="user"></i>Perfil</a>';
   }
-  html += '<a class="sidebar-link" href="login.html" style="color: var(--vermelho)"><i data-lucide="log-out"></i>Sair</a>';
+  html += '<a class="sidebar-link" href="#" onclick="sair();return false;" style="color: var(--vermelho)"><i data-lucide="log-out"></i>Sair</a>';
   html += '</div>';
   return html;
 }
@@ -93,6 +114,12 @@ function montarTopbar(titulo, ehAdmin) {
   return html;
 }
 function renderShell(opts) {
+  // Bloqueia MEI tentando abrir paginas de administracao.
+  var u = usuarioLogado();
+  if (opts.admin && (!u || u.role !== 'admin')) {
+    window.location.replace('dashboard.html');
+    return;
+  }
   if (opts.admin) document.documentElement.classList.add('admin-tema');
   var sidebar = document.getElementById('sidebar');
   if (sidebar) sidebar.innerHTML = montarSidebar(opts.pagina, opts.admin);

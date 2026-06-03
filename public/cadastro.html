@@ -112,7 +112,10 @@
 </div>
 
 <script src="assets/js/utils.js"></script>
+<script src="assets/js/api.js"></script>
 <script>
+  // Ja logado? vai pra area logada.
+  if (api.getToken()) { window.location.replace('dashboard.html'); }
   var passoAtual = 1;
   var empresaData = null;
   function renderStepper() {
@@ -184,22 +187,23 @@
     document.getElementById('empresaResultado').classList.add('hidden');
     document.getElementById('btnPasso2').disabled = true;
   });
-  function consultarCNPJ() {
+  async function consultarCNPJ() {
     var btn = document.getElementById('btnConsultar');
+    var cnpj = document.getElementById('cnpj').value.replace(/\D/g, '');
     btn.disabled = true;
     btn.textContent = 'Consultando...';
-    setTimeout(function() {
+    try {
+      // Consulta REAL via nosso backend (que fala com a BrasilAPI).
+      var d = await api.get('/cnpj/' + cnpj);
       empresaData = {
-        razao: 'MARIA DA SILVA SERVICOS DIGITAIS',
-        fantasia: 'Silva Digital',
-        cnae: '6201-5/01',
-        cnaeDesc: 'Desenvolvimento de programas de computador sob encomenda',
-        abertura: '15/01/2023',
-        situacao: 'ATIVA',
-        endereco: 'Rua das Flores, 123 - Vila Mariana, Sao Paulo/SP, 04101-000'
+        razao: d.razaoSocial || '-',
+        fantasia: d.nomeFantasia || '',
+        cnae: d.cnae || '-',
+        cnaeDesc: d.cnaeDesc || '',
+        abertura: d.abertura || '-',
+        situacao: d.situacao || '-',
+        endereco: d.endereco || '-'
       };
-      btn.textContent = 'Consultar CNPJ';
-      btn.disabled = false;
       var html = '<div class="sucesso-box">';
       html += '<div class="flex justify-between items-start mb-3">';
       html += '<div>';
@@ -219,7 +223,12 @@
       box.classList.remove('hidden');
       document.getElementById('btnPasso2').disabled = false;
       toast('CNPJ encontrado!', { desc: 'Dados preenchidos automaticamente via BrasilAPI.' });
-    }, 1500);
+    } catch (err) {
+      toast('Nao foi possivel consultar', { desc: err.message || 'Verifique o CNPJ.', tipo: 'erro' });
+    } finally {
+      btn.textContent = 'Consultar CNPJ';
+      btn.disabled = false;
+    }
   }
   function montarResumo() {
     var nome = document.getElementById('nome').value;
@@ -238,14 +247,33 @@
   function atualizarFinalizar() {
     document.getElementById('btnFinalizar').disabled = !document.getElementById('aceito').checked;
   }
-  function finalizar() {
+  async function finalizar() {
     var b = document.getElementById('btnFinalizar');
     b.disabled = true;
     b.textContent = 'Finalizando...';
-    setTimeout(function() {
-      toast('Cadastro concluido!', { desc: 'Bem-vinda ao Meu Imposto.' });
+    var payload = {
+      nome: document.getElementById('nome').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      senha: document.getElementById('senha').value,
+      cpf: document.getElementById('cpf').value.replace(/\D/g, ''),
+      cnpj: document.getElementById('cnpj').value.replace(/\D/g, '')
+    };
+    if (empresaData) {
+      payload.razaoSocial = empresaData.razao;
+      payload.cnae = empresaData.cnae;
+      payload.cnaeDesc = empresaData.cnaeDesc;
+    }
+    try {
+      // Registro REAL: cria o usuario no backend e ja devolve o token.
+      var data = await api.register(payload);
+      toast('Cadastro concluido!', { desc: 'Bem-vindo(a), ' + data.usuario.nome + '!' });
       setTimeout(function() { window.location.href = 'dashboard.html'; }, 700);
-    }, 1100);
+    } catch (err) {
+      // 409 = e-mail ja existe; 422 = dados invalidos
+      toast('Nao foi possivel concluir', { desc: err.message || 'Verifique os dados.', tipo: 'erro' });
+      b.disabled = false;
+      b.textContent = 'Finalizar cadastro ✓';
+    }
   }
   renderStepper();
 </script>

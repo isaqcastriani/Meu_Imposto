@@ -6,9 +6,10 @@ import { simularDesenquadramento } from '../services/simulador.js';
 import { config } from '../config.js';
 
 export const ferramentasRouter = Router();
-ferramentasRouter.use(autenticar);
 
-// GET /api/cnpj/:cnpj  -> consulta dados publicos via BrasilAPI
+// GET /api/cnpj/:cnpj  -> consulta dados PUBLICOS via BrasilAPI.
+// Fica ANTES do autenticar: e usado na tela de cadastro (usuario ainda nao logado).
+// E dado publico, somente leitura, e protegido pelo rate-limit global.
 ferramentasRouter.get('/cnpj/:cnpj', asyncHandler(async (req, res) => {
   const cnpj = String(req.params.cnpj).replace(/\D/g, '');
   if (cnpj.length !== 14) throw new ApiError(400, 'CNPJ deve ter 14 digitos');
@@ -32,6 +33,9 @@ ferramentasRouter.get('/cnpj/:cnpj', asyncHandler(async (req, res) => {
     throw new ApiError(502, 'Falha ao consultar a BrasilAPI');
   }
 }));
+
+// A partir daqui, exige login.
+ferramentasRouter.use(autenticar);
 
 // POST /api/simulador  { faturamento, tipo }
 ferramentasRouter.post('/simulador', asyncHandler(async (req, res) => {

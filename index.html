@@ -3,146 +3,201 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meu Imposto — Toda a burocracia do MEI em um so lugar</title>
-  <meta name="description" content="Plataforma completa para o MEI brasileiro: DAS automatico, NFS-e, calendario fiscal, simulador de teto e tutoriais guiados.">
+  <title>Meu Imposto — Toda a burocracia do MEI em um só lugar</title>
+  <meta name="description" content="Plataforma completa para o MEI brasileiro: DAS automático, NFS-e, calendário fiscal, simulador de teto e tutoriais guiados. Cuide do seu CNPJ sem dor de cabeça.">
+  <meta property="og:title" content="Meu Imposto — MEI sem complicação">
+  <meta property="og:description" content="DAS automático, NFS-e, alertas de teto e calendário fiscal. Tudo num só painel.">
+  <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/base.css">
   <link rel="stylesheet" href="/assets/css/landing.css">
   <link rel="icon" href="/assets/img/logo.png">
 </head>
-<body>
+<body class="lp">
 
-<header class="landing-header">
+<!-- ===== Header ===== -->
+<header class="lp-header">
   <div class="container">
-    <a class="logo" href="/">
+    <a class="lp-logo" href="/">
       <img src="/assets/img/logo.png" alt="Meu Imposto">
-      <span class="logo-texto">
-        <span class="logo-titulo">Meu Imposto</span>
-        <span class="logo-subtitulo">MEI sem complicacao</span>
+      <span>
+        <span class="titulo">Meu Imposto</span><br>
+        <span class="sub">MEI sem complicação</span>
       </span>
     </a>
-
-    <nav class="landing-nav">
+    <nav class="lp-nav">
       <a href="#problema">O problema</a>
       <a href="#funcionalidades">Funcionalidades</a>
       <a href="#como-funciona">Como funciona</a>
+      <a href="#faq">Dúvidas</a>
     </nav>
-
-    <div class="flex gap-2 items-center">
+    <div class="lp-header-cta">
       <a class="btn btn-ghost" href="/login.html">Entrar</a>
-      <a class="btn btn-primary" href="/cadastro.html">Cadastrar gratis</a>
+      <a class="btn btn-primary" href="/cadastro.html">Cadastrar grátis</a>
+      <button class="lp-burger" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
   </div>
 </header>
 
+<div class="lp-mobile">
+  <a href="#problema">O problema</a>
+  <a href="#funcionalidades">Funcionalidades</a>
+  <a href="#como-funciona">Como funciona</a>
+  <a href="#faq">Dúvidas</a>
+  <a class="btn btn-glass" href="/login.html">Entrar</a>
+  <a class="btn btn-primary" href="/cadastro.html">Cadastrar grátis</a>
+</div>
+
+<!-- ===== Hero ===== -->
 <section class="hero">
-  <div class="hero-bg"></div>
+  <div class="hero-orbs">
+    <span class="orb a"></span>
+    <span class="orb b"></span>
+    <span class="orb c"></span>
+  </div>
+  <div class="hero-grid-bg"></div>
+
   <div class="container hero-grid">
-    <div>
-      <span class="tag-pill">✨ Plataforma completa para o MEI brasileiro</span>
-      <h1>Toda a burocracia do MEI <span class="destaque">em um so lugar</span>.</h1>
-      <p class="subtitulo">DAS automatico, NFS-e, calendario fiscal, simulador de teto e tutoriais guiados. Tudo o que voce precisa pra cuidar do seu CNPJ sem dor de cabeca.</p>
-      <div class="flex gap-3 flex-wrap mt-5">
-        <a class="btn btn-primary btn-lg" href="/cadastro.html">Cadastrar gratis →</a>
-        <a class="btn btn-outline btn-lg" href="/login.html">Ja tenho conta</a>
+    <div class="reveal visivel">
+      <span class="tag-pill"><span class="dot"></span> Plataforma completa para o MEI brasileiro</span>
+      <h1>Toda a burocracia do MEI <span class="grad-text">em um só lugar</span>.</h1>
+      <p class="subtitulo">DAS automático, NFS-e, calendário fiscal, simulador de teto e tutoriais guiados. Tudo o que você precisa pra cuidar do seu CNPJ sem dor de cabeça.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary btn-lg" href="/cadastro.html">Cadastrar grátis →</a>
+        <a class="btn btn-glass btn-lg" href="/login.html">Já tenho conta</a>
       </div>
       <div class="hero-checks">
-        <span><span class="check">✓</span> Gratis para sempre</span>
-        <span><span class="check">✓</span> Sem cartao de credito</span>
+        <span><span class="check">✓</span> Grátis para sempre</span>
+        <span><span class="check">✓</span> Sem cartão de crédito</span>
         <span><span class="check">✓</span> 100% LGPD</span>
       </div>
     </div>
 
-    <div>
-      <div class="mockup">
-        <div class="mockup-bar">
-          <span style="background:#dc2626"></span>
-          <span style="background:#f59e0b"></span>
-          <span style="background:#10b981"></span>
+    <div class="reveal visivel" data-delay="1">
+      <div class="hero-mockup">
+        <div class="float-chip um">
+          <span class="ic" style="background:rgba(25,210,154,.16);color:#3df0b6">✓</span>
+          DAS gerado
         </div>
-        <div class="mockup-corpo" style="background: linear-gradient(to bottom right, #fff, #eef2fa);">
-          <div class="flex justify-between items-center mb-4">
+        <div class="float-chip dois">
+          <span class="ic" style="background:rgba(245,180,10,.16);color:#f5b40a">🔔</span>
+          Vence em 12 dias
+        </div>
+
+        <div class="glass-card">
+          <div class="gc-top">
             <div>
-              <div class="text-xs text-suave">Ola, Maria 👋</div>
-              <div class="font-bold text-sm">Painel financeiro</div>
+              <div class="ola">Olá, Maria 👋</div>
+              <div class="nome">Painel financeiro</div>
             </div>
-            <div style="width:32px;height:32px;border-radius:50%;background:var(--roxo)"></div>
+            <div class="gc-avatar"></div>
           </div>
-          <div class="grid grid-2 mb-4" style="gap:10px">
-            <div class="mockup-mini-card">
-              <div class="text-xs text-suave font-semibold">FATURAMENTO</div>
-              <div class="font-bold tabular text-sm">R$ 52.650</div>
-              <div class="text-xs text-verde font-semibold">↑ 12,4%</div>
+          <div class="gc-stats">
+            <div class="gc-stat">
+              <div class="lab">FATURAMENTO</div>
+              <div class="val">R$ 52.650</div>
+              <div class="delta up">↑ 12,4%</div>
             </div>
-            <div class="mockup-mini-card">
-              <div class="text-xs text-suave font-semibold">DAS</div>
-              <div class="font-bold tabular text-sm">R$ 75,90</div>
-              <div class="text-xs text-amarelo font-semibold">Vence em 12d</div>
+            <div class="gc-stat">
+              <div class="lab">DAS</div>
+              <div class="val">R$ 75,90</div>
+              <div class="delta warn">Vence em 12d</div>
             </div>
           </div>
-          <div class="mockup-mini-card">
-            <div class="flex justify-between mb-2">
-              <span class="text-xs font-semibold">Limite MEI</span>
-              <span class="text-xs font-bold text-amarelo tabular">65%</span>
+          <div class="gc-teto">
+            <div class="row">
+              <span style="color:var(--txt-suave)">Limite MEI</span>
+              <span style="font-weight:700;color:var(--amarelo)">65%</span>
             </div>
-            <div class="progress" style="height:8px"><div class="progress-bar amarelo" style="width:65%"></div></div>
-            <div class="text-xs text-suave mt-2">R$ 28.350 disponiveis ate o teto anual</div>
+            <div class="gc-bar"><i></i></div>
+            <div style="font-size:11px;color:var(--txt-fraco);margin-top:8px">R$ 28.350 disponíveis até o teto anual</div>
           </div>
-          <div class="mockup-barras">
-            <div style="height:40%"></div><div style="height:65%"></div><div style="height:50%"></div>
-            <div style="height:80%"></div><div style="height:70%"></div><div style="height:95%"></div>
-            <div style="height:60%"></div><div style="height:85%"></div><div style="height:75%"></div>
-            <div style="height:100%"></div><div style="height:90%"></div><div style="height:88%"></div>
+          <div class="gc-bars">
+            <i style="height:40%;animation-delay:.05s"></i>
+            <i style="height:62%;animation-delay:.1s"></i>
+            <i style="height:50%;animation-delay:.15s"></i>
+            <i style="height:80%;animation-delay:.2s"></i>
+            <i style="height:70%;animation-delay:.25s"></i>
+            <i style="height:95%;animation-delay:.3s"></i>
+            <i style="height:60%;animation-delay:.35s"></i>
+            <i style="height:85%;animation-delay:.4s"></i>
+            <i style="height:75%;animation-delay:.45s"></i>
+            <i style="height:100%;animation-delay:.5s"></i>
+            <i style="height:90%;animation-delay:.55s"></i>
+            <i style="height:88%;animation-delay:.6s"></i>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <div class="scroll-cue">
+    <span class="mouse"></span>
+    Role para descobrir
+  </div>
 </section>
 
-<section class="trust-bar">
+<!-- ===== Marquee de portais substituídos ===== -->
+<section class="marquee">
   <div class="container">
-    <div class="trust-stats">
-      <div>
-        <div class="num">1.200+</div>
+    <div class="lab">Substitua uma dúzia de portais do governo por um só painel</div>
+  </div>
+  <div class="marquee-track">
+    <span>PGMEI</span><span>•</span><span>Simples Nacional</span><span>•</span><span>Redesim</span><span>•</span>
+    <span>Portal do Empreendedor</span><span>•</span><span>Meu INSS</span><span>•</span><span>NFS-e</span><span>•</span>
+    <span>DASN-SIMEI</span><span>•</span><span>e-CAC</span><span>•</span>
+    <span>PGMEI</span><span>•</span><span>Simples Nacional</span><span>•</span><span>Redesim</span><span>•</span>
+    <span>Portal do Empreendedor</span><span>•</span><span>Meu INSS</span><span>•</span><span>NFS-e</span><span>•</span>
+    <span>DASN-SIMEI</span><span>•</span><span>e-CAC</span><span>•</span>
+  </div>
+</section>
+
+<!-- ===== Stats ===== -->
+<section class="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item reveal">
+        <div class="num grad-text"><span data-num="1200" data-suf="+">0</span></div>
         <div class="rotulo">MEIs organizados</div>
       </div>
-      <div>
-        <div class="num">R$ 81 mil</div>
+      <div class="stat-item reveal" data-delay="1">
+        <div class="num grad-text"><span data-num="81" data-pre="R$ " data-suf=" mil">0</span></div>
         <div class="rotulo">Teto monitorado em tempo real</div>
       </div>
-      <div>
-        <div class="num">100%</div>
+      <div class="stat-item reveal" data-delay="2">
+        <div class="num grad-text"><span data-num="100" data-suf="%">0</span></div>
         <div class="rotulo">Conforme a LGPD</div>
       </div>
-      <div>
-        <div class="num">30 seg</div>
+      <div class="stat-item reveal" data-delay="3">
+        <div class="num grad-text"><span data-num="30" data-suf="s">0</span></div>
         <div class="rotulo">Para cadastrar seu CNPJ</div>
       </div>
     </div>
   </div>
 </section>
 
-<section id="problema" class="secao problema-bg">
+<!-- ===== Problema ===== -->
+<section id="problema" class="secao" style="background:var(--bg-2);border-top:1px solid var(--linha);border-bottom:1px solid var(--linha)">
   <div class="container">
-    <div class="secao-titulo">
-      <div class="pre">O problema</div>
-      <h2>Ser MEI no Brasil e simples — so na teoria.</h2>
+    <div class="secao-titulo reveal">
+      <span class="pre">O problema</span>
+      <h2>Ser MEI no Brasil é simples — só na teoria.</h2>
+      <p>Entre prazos, portais e cálculos, é fácil escorregar. E cada deslize custa caro.</p>
     </div>
-    <div class="grid grid-3">
-      <div class="card feat-card">
-        <div class="feat-icone vermelho">⚠</div>
+    <div class="lp-grid-3">
+      <div class="glow-card reveal">
+        <div class="feat-icone vermelho">⚠️</div>
         <h3>Sites espalhados</h3>
-        <p>PGMEI, Simples, Redesim, Meu INSS… cada servico em um portal diferente, com login e fluxo proprios.</p>
+        <p>PGMEI, Simples, Redesim, Meu INSS… cada serviço em um portal diferente, com login e fluxo próprios.</p>
       </div>
-      <div class="card feat-card">
-        <div class="feat-icone vermelho">⏱</div>
+      <div class="glow-card reveal" data-delay="1">
+        <div class="feat-icone vermelho">⏱️</div>
         <h3>Prazos perdidos</h3>
-        <p>Esquecer o DAS gera multa. A DASN e anual e facil de deixar passar. Sem alertas, e so prejuizo.</p>
+        <p>Esquecer o DAS gera multa. A DASN é anual e fácil de deixar passar. Sem alertas, é só prejuízo.</p>
       </div>
-      <div class="card feat-card">
+      <div class="glow-card reveal" data-delay="2">
         <div class="feat-icone vermelho">⚡</div>
         <h3>Medo de estourar o teto</h3>
         <p>Faturou demais sem perceber? Pode virar Simples Nacional automaticamente — e pagar muito mais imposto.</p>
@@ -151,68 +206,260 @@
   </div>
 </section>
 
+<!-- ===== Funcionalidades (bento) ===== -->
 <section id="funcionalidades" class="secao">
   <div class="container">
-    <div class="secao-titulo">
-      <div class="pre" style="color: var(--verde-escuro)">Funcionalidades</div>
-      <h2>Tudo o que voce precisa, num so painel.</h2>
+    <div class="secao-titulo reveal">
+      <span class="pre">Funcionalidades</span>
+      <h2>Tudo o que você precisa, num só painel.</h2>
+      <p>Da emissão de nota ao cálculo do imposto — automatizado, no seu bolso.</p>
     </div>
-    <div class="grid grid-3">
-      <div class="card feat-card"><div class="feat-icone roxo">🧮</div><h3>DAS automatico</h3><p>Calculo do imposto mensal com base na sua atividade. Boleto em um clique.</p></div>
-      <div class="card feat-card"><div class="feat-icone amarelo">🛡</div><h3>Alertas de teto</h3><p>Acompanhe o limite de R$ 81.000 em tempo real. Nunca mais ultrapasse sem perceber.</p></div>
-      <div class="card feat-card"><div class="feat-icone verde">📄</div><h3>Emissao de NFS-e</h3><p>Emita notas fiscais de servico direto pela plataforma, sem precisar do portal.</p></div>
-      <div class="card feat-card"><div class="feat-icone roxo">📚</div><h3>Tutoriais guiados</h3><p>Passo a passo em video e texto para tudo: do CCMEI ao DASN.</p></div>
-      <div class="card feat-card"><div class="feat-icone amarelo">📈</div><h3>Simulador inteligente</h3><p>Veja se vale migrar para o Simples Nacional antes de ultrapassar o teto.</p></div>
-      <div class="card feat-card"><div class="feat-icone verde">📅</div><h3>Calendario fiscal</h3><p>Todas as obrigacoes em um so lugar. Lembretes por e-mail e push.</p></div>
+    <div class="bento">
+      <div class="glow-card wide reveal">
+        <div class="feat-icone azul">🧮</div>
+        <h3>DAS automático</h3>
+        <p>Cálculo do imposto mensal com base na sua atividade. Boleto em um clique, lembrete antes de vencer e histórico completo de pagamentos.</p>
+      </div>
+      <div class="glow-card reveal" data-delay="1">
+        <div class="feat-icone amarelo">🛡️</div>
+        <h3>Alertas de teto</h3>
+        <p>Acompanhe o limite de R$ 81.000 em tempo real. Nunca mais ultrapasse sem perceber.</p>
+      </div>
+      <div class="glow-card reveal">
+        <div class="feat-icone verde">📄</div>
+        <h3>Emissão de NFS-e</h3>
+        <p>Emita notas fiscais de serviço direto pela plataforma, sem precisar do portal.</p>
+      </div>
+      <div class="glow-card reveal" data-delay="1">
+        <div class="feat-icone azul">📚</div>
+        <h3>Tutoriais guiados</h3>
+        <p>Passo a passo em vídeo e texto para tudo: do CCMEI ao DASN.</p>
+      </div>
+      <div class="glow-card reveal" data-delay="2">
+        <div class="feat-icone verde">📅</div>
+        <h3>Calendário fiscal</h3>
+        <p>Todas as obrigações em um só lugar, com lembretes por e-mail e push.</p>
+      </div>
+      <div class="glow-card wide reveal">
+        <div class="feat-icone amarelo">📈</div>
+        <h3>Simulador inteligente</h3>
+        <p>Veja se vale a pena migrar para o Simples Nacional antes de ultrapassar o teto. Projete cenários e decida com dados — não no escuro.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<section id="como-funciona" class="secao" style="background: var(--fundo-suave); border-top: 1px solid var(--borda)">
+<!-- ===== Destaque do teto (split) ===== -->
+<section class="secao" style="background:var(--bg-2);border-top:1px solid var(--linha);border-bottom:1px solid var(--linha)">
   <div class="container">
-    <div class="secao-titulo">
-      <div class="pre">Como funciona</div>
-      <h2>Em 4 passos, voce esta no controle.</h2>
-    </div>
-    <div class="grid grid-4">
-      <div class="card"><div class="passo-numero">01</div><h3 class="mt-2">Cadastre seu CNPJ</h3><p class="text-sm text-suave mt-2">Em 30 segundos buscamos seus dados na BrasilAPI e configuramos sua conta.</p></div>
-      <div class="card"><div class="passo-numero">02</div><h3 class="mt-2">Conecte suas obrigacoes</h3><p class="text-sm text-suave mt-2">Importamos prazos, DAS pendentes e dados da sua atividade automaticamente.</p></div>
-      <div class="card"><div class="passo-numero">03</div><h3 class="mt-2">Lance receitas e despesas</h3><p class="text-sm text-suave mt-2">Manual ou via NFS-e emitida na plataforma. Tudo categorizado.</p></div>
-      <div class="card"><div class="passo-numero">04</div><h3 class="mt-2">Relaxe</h3><p class="text-sm text-suave mt-2">A gente avisa, calcula e organiza. Voce foca no seu negocio.</p></div>
-    </div>
-    <div class="text-center mt-8">
-      <a class="btn btn-primary btn-lg" href="/cadastro.html">Comecar agora →</a>
+    <div class="split">
+      <div class="reveal">
+        <div class="pre">Controle do teto</div>
+        <h2>Saiba exatamente quanto falta para o limite.</h2>
+        <p>O Meu Imposto soma todas as suas receitas e mostra, em tempo real, quanto você já faturou no ano e quanto ainda pode faturar antes de bater os R$ 81.000.</p>
+        <ul>
+          <li><span class="ck">✓</span> Barra de progresso atualizada a cada lançamento</li>
+          <li><span class="ck">✓</span> Aviso automático ao se aproximar do limite</li>
+          <li><span class="ck">✓</span> Projeção de quando você deve estourar no ritmo atual</li>
+          <li><span class="ck">✓</span> Simulação de migração para o Simples Nacional</li>
+        </ul>
+      </div>
+      <div class="teto-visual reveal" data-delay="1">
+        <div class="teto-ring" data-pct="65">
+          <div style="text-align:center">
+            <div class="pc grad-text">65%</div>
+            <div class="pl">do teto usado</div>
+          </div>
+        </div>
+        <div class="teto-linhas">
+          <div class="teto-linha"><span style="color:var(--txt-suave)">Faturado no ano</span><b>R$ 52.650,00</b></div>
+          <div class="teto-linha"><span style="color:var(--txt-suave)">Disponível até o teto</span><b style="color:var(--verde-claro)">R$ 28.350,00</b></div>
+          <div class="teto-linha"><span style="color:var(--txt-suave)">Projeção de estouro</span><b style="color:var(--amarelo)">Nov / 2026</b></div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
+<!-- ===== Como funciona ===== -->
+<section id="como-funciona" class="secao">
+  <div class="container">
+    <div class="secao-titulo reveal">
+      <span class="pre">Como funciona</span>
+      <h2>Em 4 passos, você está no controle.</h2>
+    </div>
+    <div class="passos">
+      <div class="passo reveal">
+        <div class="num grad-text">01</div>
+        <h3>Cadastre seu CNPJ</h3>
+        <p>Em 30 segundos buscamos seus dados na BrasilAPI e configuramos sua conta.</p>
+      </div>
+      <div class="passo reveal" data-delay="1">
+        <div class="num grad-text">02</div>
+        <h3>Conecte suas obrigações</h3>
+        <p>Importamos prazos, DAS pendentes e dados da sua atividade automaticamente.</p>
+      </div>
+      <div class="passo reveal" data-delay="2">
+        <div class="num grad-text">03</div>
+        <h3>Lance receitas e despesas</h3>
+        <p>Manual ou via NFS-e emitida na plataforma. Tudo categorizado.</p>
+      </div>
+      <div class="passo reveal" data-delay="3">
+        <div class="num grad-text">04</div>
+        <h3>Relaxe</h3>
+        <p>A gente avisa, calcula e organiza. Você foca no seu negócio.</p>
+      </div>
+    </div>
+    <div class="text-center reveal" style="margin-top:48px">
+      <a class="btn btn-primary btn-lg" href="/cadastro.html">Começar agora →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Depoimentos ===== -->
+<section class="secao" style="background:var(--bg-2);border-top:1px solid var(--linha);border-bottom:1px solid var(--linha)">
+  <div class="container">
+    <div class="secao-titulo reveal">
+      <span class="pre">Quem usa, recomenda</span>
+      <h2>Mais de 1.200 MEIs já respiram aliviados.</h2>
+    </div>
+  </div>
+  <div class="depo-wrap">
+    <div class="depo-track">
+      <div class="depo">
+        <div class="estrelas">★★★★★</div>
+        <p>"Eu vivia esquecendo o DAS e pagando multa. Agora recebo o aviso e pago em um clique. Mudou minha vida de cabeleireira."</p>
+        <div class="quem"><span class="av">MS</span><div><div class="n">Maria Silva</div><div class="c">Salão de beleza · SP</div></div></div>
+      </div>
+      <div class="depo">
+        <div class="estrelas">★★★★★</div>
+        <p>"O controle de teto me salvou. Estava quase estourando o limite sem perceber e o app avisou a tempo de eu me planejar."</p>
+        <div class="quem"><span class="av">JP</span><div><div class="n">João Pereira</div><div class="c">Dev freelancer · RJ</div></div></div>
+      </div>
+      <div class="depo">
+        <div class="estrelas">★★★★★</div>
+        <p>"Emitir nota era um parto pelo portal da prefeitura. Aqui faço em segundos. Recomendo pra todo MEI que conheço."</p>
+        <div class="quem"><span class="av">AC</span><div><div class="n">Ana Costa</div><div class="c">Consultoria · MG</div></div></div>
+      </div>
+      <div class="depo">
+        <div class="estrelas">★★★★★</div>
+        <p>"Os tutoriais são diretos ao ponto. Consegui resolver a DASN sozinho, sem pagar contador. Pra mim já valeu."</p>
+        <div class="quem"><span class="av">RL</span><div><div class="n">Rafael Lima</div><div class="c">Marceneiro · PR</div></div></div>
+      </div>
+      <!-- duplicado p/ loop infinito -->
+      <div class="depo">
+        <div class="estrelas">★★★★★</div>
+        <p>"Eu vivia esquecendo o DAS e pagando multa. Agora recebo o aviso e pago em um clique. Mudou minha vida de cabeleireira."</p>
+        <div class="quem"><span class="av">MS</span><div><div class="n">Maria Silva</div><div class="c">Salão de beleza · SP</div></div></div>
+      </div>
+      <div class="depo">
+        <div class="estrelas">★★★★★</div>
+        <p>"O controle de teto me salvou. Estava quase estourando o limite sem perceber e o app avisou a tempo de eu me planejar."</p>
+        <div class="quem"><span class="av">JP</span><div><div class="n">João Pereira</div><div class="c">Dev freelancer · RJ</div></div></div>
+      </div>
+      <div class="depo">
+        <div class="estrelas">★★★★★</div>
+        <p>"Emitir nota era um parto pelo portal da prefeitura. Aqui faço em segundos. Recomendo pra todo MEI que conheço."</p>
+        <div class="quem"><span class="av">AC</span><div><div class="n">Ana Costa</div><div class="c">Consultoria · MG</div></div></div>
+      </div>
+      <div class="depo">
+        <div class="estrelas">★★★★★</div>
+        <p>"Os tutoriais são diretos ao ponto. Consegui resolver a DASN sozinho, sem pagar contador. Pra mim já valeu."</p>
+        <div class="quem"><span class="av">RL</span><div><div class="n">Rafael Lima</div><div class="c">Marceneiro · PR</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section id="faq" class="secao">
+  <div class="container">
+    <div class="secao-titulo reveal">
+      <span class="pre">Dúvidas frequentes</span>
+      <h2>Tudo que você quer saber.</h2>
+    </div>
+    <div class="faq">
+      <div class="faq-item reveal">
+        <button class="faq-q">O Meu Imposto é realmente gratuito? <span class="ic">+</span></button>
+        <div class="faq-a"><p>Sim. As funcionalidades essenciais para organizar seu MEI são gratuitas para sempre, sem cartão de crédito. No futuro teremos recursos avançados opcionais, mas o controle do seu CNPJ continua livre.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q">Vocês têm acesso à minha conta do gov.br? <span class="ic">+</span></button>
+        <div class="faq-a"><p>Não. Buscamos apenas dados públicos do seu CNPJ via BrasilAPI e você lança suas receitas. Nada de senhas do gov.br. Seus dados são tratados conforme a LGPD.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q">O DAS é pago direto pelo app? <span class="ic">+</span></button>
+        <div class="faq-a"><p>Geramos o boleto/DAS pronto e te avisamos antes do vencimento. O pagamento é feito no seu banco normalmente, e você marca como pago para manter o histórico em dia.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q">Funciona pra qualquer atividade de MEI? <span class="ic">+</span></button>
+        <div class="faq-a"><p>Sim, para comércio, serviços e indústria. O cálculo do DAS se ajusta automaticamente à sua ocupação registrada no CCMEI.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q">E se eu ultrapassar o teto de R$ 81 mil? <span class="ic">+</span></button>
+        <div class="faq-a"><p>Você é avisado bem antes. O simulador mostra o impacto de migrar para o Simples Nacional e ajuda a decidir o melhor momento — sem sustos no fim do ano.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA final ===== -->
 <section class="secao">
   <div class="container">
-    <div class="cta-final">
-      <div style="font-size:48px;margin-bottom:12px">📊</div>
+    <div class="cta-final reveal">
+      <div style="font-size:46px;margin-bottom:14px">📊</div>
       <h2>Pare de perder tempo e dinheiro com burocracia.</h2>
-      <p>Junte-se a mais de 1.200 MEIs que ja organizaram suas obrigacoes fiscais com o Meu Imposto.</p>
-      <a class="btn btn-amarelo btn-lg" href="/cadastro.html">Criar minha conta gratis</a>
+      <p>Junte-se a mais de 1.200 MEIs que já organizaram suas obrigações fiscais com o Meu Imposto.</p>
+      <div class="hero-ctas" style="justify-content:center">
+        <a class="btn btn-verde btn-lg" href="/cadastro.html">Criar minha conta grátis →</a>
+        <a class="btn btn-glass btn-lg" href="/login.html">Já tenho conta</a>
+      </div>
     </div>
   </div>
 </section>
 
-<footer class="landing-footer">
+<!-- ===== Footer ===== -->
+<footer class="lp-footer">
   <div class="container">
-    <a class="logo" href="/">
-      <img src="/assets/img/logo.png" alt="Meu Imposto">
-      <span class="logo-texto">
-        <span class="logo-titulo">Meu Imposto</span>
-        <span class="logo-subtitulo">MEI sem complicacao</span>
-      </span>
-    </a>
-    <div class="flex gap-4 text-xs text-suave">
-      <a href="#">Termos</a><a href="#">Privacidade</a><a href="#">Contato</a>
+    <div class="top">
+      <div class="col marca">
+        <a class="lp-logo" href="/">
+          <img src="/assets/img/logo.png" alt="Meu Imposto">
+          <span>
+            <span class="titulo">Meu Imposto</span><br>
+            <span class="sub">MEI sem complicação</span>
+          </span>
+        </a>
+        <p>A plataforma que reúne toda a vida fiscal do MEI brasileiro num só lugar. Feito no Brasil, pra quem empreende de verdade.</p>
+      </div>
+      <div class="col">
+        <h4>Produto</h4>
+        <a href="#funcionalidades">Funcionalidades</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="/simulador.html">Simulador</a>
+        <a href="/cnpj.html">Consultar CNPJ</a>
+      </div>
+      <div class="col">
+        <h4>Conta</h4>
+        <a href="/login.html">Entrar</a>
+        <a href="/cadastro.html">Cadastrar grátis</a>
+        <a href="/recuperar-senha.html">Recuperar senha</a>
+      </div>
+      <div class="col">
+        <h4>Empresa</h4>
+        <a href="#faq">Dúvidas</a>
+        <a href="#">Termos de uso</a>
+        <a href="#">Privacidade</a>
+        <a href="#">Contato</a>
+      </div>
     </div>
-    <p>© <span id="ano"></span> Meu Imposto. Feito no Brasil 🇧🇷</p>
+    <div class="bottom">
+      <span>© <span id="ano"></span> Meu Imposto. Todos os direitos reservados.</span>
+      <span>Feito no Brasil 🇧🇷</span>
+    </div>
   </div>
 </footer>
 
-<script>document.getElementById('ano').textContent = new Date().getFullYear();</script>
+<script src="/assets/js/landing.js"></script>
 </body>
 </html>

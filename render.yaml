@@ -1,0 +1,26 @@
+# Blueprint de deploy do backend no Render (https://render.com)
+# Como usar:
+#   1. Crie conta no Render e conecte o GitHub.
+#   2. New + -> "Blueprint" -> selecione o repo isaqcastriani/Meu_Imposto.
+#   3. O Render le este arquivo e cria o servico. Ele vai pedir os valores
+#      marcados como "sync: false" (DATABASE_URL e JWT_SECRET) -> cole os mesmos
+#      que estao no backend/.env.
+services:
+  - type: web
+    name: meu-imposto-api
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CORS_ORIGIN
+        value: https://isaqcastriani.github.io
+      - key: DATABASE_URL
+        sync: false   # cole no painel do Render (o mesmo do .env, com %40 na senha)
+      - key: JWT_SECRET
+        sync: false   # cole no painel do Render (o mesmo do .env)

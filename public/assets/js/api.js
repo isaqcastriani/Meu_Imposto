@@ -7,8 +7,14 @@
    O token JWT fica no localStorage. Configure a URL base abaixo.
    ============================================================ */
 var API = (function () {
-  // Em dev, backend roda em :4000. Em producao, troque pela URL publica da API.
-  var BASE_URL = (window.API_BASE_URL) || 'http://localhost:4000/api';
+  // Resolucao da URL base:
+  //  - window.API_BASE_URL definido -> usa ele (override manual)
+  //  - rodando local (localhost/127.0.0.1) -> backend de dev em :4000
+  //  - producao (GitHub Pages) -> API hospedada no Render
+  // OBS: confirme esta URL no painel do Render apos o primeiro deploy.
+  var _isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  var PROD_API = 'https://meu-imposto-api.onrender.com/api';
+  var BASE_URL = (window.API_BASE_URL) || (_isLocal ? 'http://localhost:4000/api' : PROD_API);
   var TOKEN_KEY = 'mi_token';
   var USER_KEY = 'mi_user';
 

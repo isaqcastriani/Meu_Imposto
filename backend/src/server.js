@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import { config } from './config.js';
@@ -20,11 +21,20 @@ import { adminRouter } from './routes/admin.js';
 
 const app = express();
 
+// Atras de proxy (Render/Railway/Nginx) -> confia no X-Forwarded-* para rate-limit e IP corretos
+app.set('trust proxy', 1);
+
+// Headers de seguranca (HSTS, X-Content-Type-Options, esconde X-Powered-By, etc.)
+app.use(helmet());
 app.use(cors({ origin: config.corsOrigin === '*' ? true : config.corsOrigin.split(',') }));
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 app.use(morgan(config.env === 'production' ? 'combined' : 'dev'));
 
-// Rate limit basico nas rotas de autenticacao
+// Rate limit global de defesa (todas as rotas /api)
+const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false });
+app.use('/api', globalLimiter);
+
+// Rate limit mais estrito nas rotas de autenticacao (anti brute-force)
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 50, standardHeaders: true, legacyHeaders: false });
 
 // Healthcheck

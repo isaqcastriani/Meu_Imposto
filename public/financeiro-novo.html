@@ -69,7 +69,7 @@
 </div>
 
 <script src="assets/js/utils.js"></script>
-<script src="assets/js/data.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/shell.js"></script>
 <script>
   renderShell({ pagina: 'financeiro.html', titulo: 'Financeiro' });
@@ -86,10 +86,32 @@
     sel.innerHTML = '<option value="">Selecione...</option>' + cats.map(function(c) { return '<option>' + c + '</option>'; }).join('');
   }
   setTipo('receita');
-  document.getElementById('form').addEventListener('submit', function(e) {
+
+  // Converte "1.234,56" (pt-BR) para numero.
+  function parseValor(v) {
+    return Number(String(v).replace(/\s/g, '').replace(/\./g, '').replace(',', '.'));
+  }
+
+  document.getElementById('form').addEventListener('submit', async function (e) {
     e.preventDefault();
-    toast('Lancamento salvo!', { desc: tipo === 'receita' ? 'Receita registrada com sucesso.' : 'Despesa registrada.' });
-    setTimeout(function() { window.location.href = 'financeiro.html'; }, 700);
+    var valor = parseValor(document.getElementById('valor').value);
+    var descricao = document.getElementById('descricao').value.trim();
+    var data = document.getElementById('data').value;
+    var categoria = document.getElementById('categoria').value || 'Outros';
+    if (!descricao || !data || !Number.isFinite(valor) || valor < 0) {
+      toast('Preencha os campos', { desc: 'Data, descricao e valor sao obrigatorios.', tipo: 'erro' });
+      return;
+    }
+    var btn = e.target.querySelector('button[type=submit]');
+    btn.disabled = true; btn.textContent = 'Salvando...';
+    try {
+      await api.post('/lancamentos', { data: data, descricao: descricao, categoria: categoria, tipo: tipo, valor: valor });
+      toast('Lancamento salvo!', { desc: tipo === 'receita' ? 'Receita registrada.' : 'Despesa registrada.' });
+      setTimeout(function () { window.location.href = 'financeiro.html'; }, 600);
+    } catch (err) {
+      toast('Erro ao salvar', { desc: err.message, tipo: 'erro' });
+      btn.disabled = false; btn.textContent = 'Salvar lancamento';
+    }
   });
   lucide.createIcons();
 </script>

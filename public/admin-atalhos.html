@@ -21,7 +21,7 @@
           <div class="icone"><i data-lucide="external-link"></i></div>
           <div><h1>Gestao de atalhos</h1><p>Gerencie os links rapidos para portais Gov.br.</p></div>
         </div>
-        <button class="btn btn-primary" onclick="toast('Abrindo formulario...')">+ Novo atalho</button>
+        <button class="btn btn-primary" id="btnNovo">+ Novo atalho</button>
       </div>
 
       <div class="card card-shadow" style="padding:0" id="lista"></div>
@@ -31,22 +31,47 @@
 </div>
 
 <script src="assets/js/utils.js"></script>
-<script src="assets/js/data.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/shell.js"></script>
 <script>
+(async function () {
   renderShell({ pagina: 'admin-atalhos.html', titulo: 'Atalhos', admin: true });
-  var html = '';
-  for (var i = 0; i < atalhosGov.length; i++) {
-    var a = atalhosGov[i];
-    html += '<div class="p-4 flex items-center gap-3" style="border-bottom:1px solid var(--borda)">';
-    html += '<span class="text-suave" style="cursor:grab">⋮⋮</span>';
-    html += '<div class="flex-1"><div class="flex items-center gap-2"><b>' + a.nome + '</b><span class="badge badge-outline">' + a.categoria + '</span></div>';
-    html += '<div class="text-xs text-suave" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + a.url + '</div></div>';
-    html += '<input type="checkbox" checked style="cursor:pointer">';
-    html += '<button class="btn btn-ghost btn-icon">✎</button><button class="btn btn-ghost btn-icon" style="color:var(--vermelho)">🗑</button></div>';
+
+  async function carregar() {
+    var lista;
+    try { lista = (await api.get('/atalhos')).atalhos || []; }
+    catch (e) { erroCarregar(document.getElementById('lista'), e); return; }
+    var html = '';
+    for (var i = 0; i < lista.length; i++) {
+      var a = lista[i];
+      html += '<div class="p-4 flex items-center gap-3" style="border-bottom:1px solid var(--borda)">';
+      html += '<div class="flex-1"><div class="flex items-center gap-2"><b>' + a.nome + '</b><span class="badge badge-outline">' + (a.categoria || '—') + '</span></div>';
+      html += '<div class="text-xs text-suave" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + a.url + '</div></div>';
+      html += '<a class="btn btn-ghost btn-sm" href="' + a.url + '" target="_blank" rel="noopener">Abrir ↗</a>';
+      html += '<button class="btn btn-ghost btn-icon" style="color:var(--vermelho)" onclick="remover(\'' + a.id + '\')">🗑</button></div>';
+    }
+    document.getElementById('lista').innerHTML = html || '<div class="p-4 text-sm text-suave">Nenhum atalho cadastrado.</div>';
+    lucide.createIcons();
   }
-  document.getElementById('lista').innerHTML = html;
-  lucide.createIcons();
+
+  document.getElementById('btnNovo').addEventListener('click', async function () {
+    var nome = prompt('Nome do atalho:'); if (!nome) return;
+    var url = prompt('URL (https://...):'); if (!url) return;
+    var categoria = prompt('Categoria (ex: Impostos, Cadastro):', 'Outros') || 'Outros';
+    try {
+      await api.post('/admin/atalhos', { nome: nome, url: url, categoria: categoria });
+      toast('Atalho criado'); carregar();
+    } catch (e) { toast('Erro', { desc: e.message, tipo: 'erro' }); }
+  });
+
+  window.remover = async function (id) {
+    if (!confirm('Remover este atalho?')) return;
+    try { await api.del('/admin/atalhos/' + id); toast('Removido'); carregar(); }
+    catch (e) { toast('Erro', { desc: e.message, tipo: 'erro' }); }
+  };
+
+  carregar();
+})();
 </script>
 </body>
 </html>

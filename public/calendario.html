@@ -51,20 +51,40 @@
 </div>
 
 <script src="assets/js/utils.js"></script>
-<script src="assets/js/data.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/shell.js"></script>
 <script>
+(function () {
   renderShell({ pagina: 'calendario.html', titulo: 'Calendario' });
   var meses = ['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   var dataAtual = new Date();
-  function navegar(delta) {
+  var cache = {};       // ano -> [{data(dia), mes, titulo, tipo, desc}]
+  var obrigacoes = [];
+
+  // Busca as obrigacoes de um ano (com cache) e transforma para {data:dia, mes, ...}.
+  async function carregarAno(ano) {
+    if (cache[ano]) return cache[ano];
+    var d = await api.get('/calendario?ano=' + ano);
+    var lista = (d.obrigacoes || []).map(function (o) {
+      var dt = new Date(o.data);
+      return { data: dt.getUTCDate(), mes: dt.getUTCMonth(), titulo: o.titulo, tipo: o.tipo === 'das' ? 'das' : 'anual', desc: o.descricao };
+    });
+    cache[ano] = lista;
+    return lista;
+  }
+
+  window.navegar = async function (delta) {
     if (delta === 0) dataAtual = new Date();
     else dataAtual = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + delta, 1);
-    render();
-  }
-  function render() {
+    await render();
+  };
+
+  async function render() {
     var ano = dataAtual.getFullYear();
     var mes = dataAtual.getMonth();
+    try { obrigacoes = await carregarAno(ano); }
+    catch (e) { erroCarregar(document.getElementById('grade'), e); return; }
+
     document.getElementById('mesAno').textContent = meses[mes] + ' ' + ano;
     var primeiroDia = new Date(ano, mes, 1).getDay();
     var diasNoMes = new Date(ano, mes + 1, 0).getDate();
@@ -85,20 +105,26 @@
       html += '</div>';
     }
     document.getElementById('grade').innerHTML = html;
+
+    // Proximas obrigacoes (a partir de hoje), ordenadas.
+    var futuras = obrigacoes.filter(function (o) { return new Date(ano, o.mes, o.data) >= new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()); })
+      .sort(function (a, b) { return (a.mes - b.mes) || (a.data - b.data); }).slice(0, 6);
+    var lh = '';
+    for (var i = 0; i < futuras.length; i++) {
+      var o = futuras[i];
+      var b = o.tipo === 'das' ? 'badge-amarelo' : 'badge-vermelho';
+      lh += '<div class="card muted-bg mb-2" style="padding:12px">' +
+        '<div class="flex justify-between items-center mb-1">' +
+        '<span class="badge ' + b + '">' + o.titulo + '</span>' +
+        '<span class="text-xs font-bold tabular">' + String(o.data).padStart(2, '0') + '/' + String(o.mes + 1).padStart(2, '0') + '</span>' +
+        '</div><div class="text-xs text-suave">' + o.desc + '</div></div>';
+    }
+    document.getElementById('listaObr').innerHTML = lh || '<div class="text-sm text-suave">Sem obrigacoes futuras neste ano.</div>';
+    lucide.createIcons();
   }
-  var lh = '';
-  for (var i = 0; i < obrigacoes.length; i++) {
-    var o = obrigacoes[i];
-    var b = o.tipo === 'das' ? 'badge-amarelo' : 'badge-vermelho';
-    lh += '<div class="card muted-bg mb-2" style="padding:12px">' +
-      '<div class="flex justify-between items-center mb-1">' +
-      '<span class="badge ' + b + '">' + o.titulo + '</span>' +
-      '<span class="text-xs font-bold tabular">' + String(o.data).padStart(2,'0') + '/' + String(o.mes+1).padStart(2,'0') + '</span>' +
-      '</div><div class="text-xs text-suave">' + o.desc + '</div></div>';
-  }
-  document.getElementById('listaObr').innerHTML = lh;
+
   render();
-  lucide.createIcons();
+})();
 </script>
 </body>
 </html>

@@ -21,12 +21,12 @@
           <div class="icone"><i data-lucide="book-open"></i></div>
           <div><h1>Gestao de tutoriais</h1><p>Crie, edite e publique conteudos para os MEIs.</p></div>
         </div>
-        <button class="btn btn-primary" onclick="toast('Abrindo editor...')">+ Novo tutorial</button>
+        <button class="btn btn-primary" id="btnNovo">+ Novo tutorial</button>
       </div>
 
       <div class="card card-shadow" style="padding:0; overflow-x:auto">
         <table class="tabela">
-          <thead><tr><th>Titulo</th><th>Categoria</th><th>Status</th><th>Visualizacoes</th><th></th></tr></thead>
+          <thead><tr><th>Titulo</th><th>Categoria</th><th>Nivel</th><th>Tempo</th><th></th></tr></thead>
           <tbody id="tbody"></tbody>
         </table>
       </div>
@@ -36,21 +36,44 @@
 </div>
 
 <script src="assets/js/utils.js"></script>
-<script src="assets/js/data.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/shell.js"></script>
 <script>
+(async function () {
   renderShell({ pagina: 'admin-tutoriais.html', titulo: 'Tutoriais', admin: true });
-  var html = '';
-  for (var i = 0; i < tutoriais.length; i++) {
-    var t = tutoriais[i];
-    var rascunho = i % 5 === 0;
-    html += '<tr><td class="font-semibold">' + t.titulo + '</td><td><span class="badge badge-outline">' + t.categoria + '</span></td>';
-    html += '<td><span class="badge ' + (rascunho ? 'badge-amarelo' : 'badge-verde') + '">' + (rascunho ? 'Rascunho' : 'Publicado') + '</span></td>';
-    html += '<td class="font-bold tabular">' + numero(1200 - i * 70) + '</td>';
-    html += '<td class="text-right"><button class="btn btn-ghost btn-icon">✎</button><button class="btn btn-ghost btn-icon" style="color:var(--vermelho)">🗑</button></td></tr>';
+
+  async function carregar() {
+    var lista;
+    try { lista = (await api.get('/tutoriais')).tutoriais || []; }
+    catch (e) { erroCarregar(document.getElementById('tbody').parentElement, e); return; }
+    var html = '';
+    for (var i = 0; i < lista.length; i++) {
+      var t = lista[i];
+      html += '<tr><td class="font-semibold">' + t.titulo + '</td><td><span class="badge badge-outline">' + t.categoria + '</span></td>';
+      html += '<td>' + (t.dificuldade || '—') + '</td><td class="tabular">' + (t.tempo || '—') + '</td>';
+      html += '<td class="text-right"><button class="btn btn-ghost btn-icon" style="color:var(--vermelho)" onclick="remover(\'' + t.id + '\')">🗑</button></td></tr>';
+    }
+    document.getElementById('tbody').innerHTML = html || '<tr><td colspan="5" class="text-center text-suave" style="padding:24px">Nenhum tutorial.</td></tr>';
+    lucide.createIcons();
   }
-  document.getElementById('tbody').innerHTML = html;
-  lucide.createIcons();
+
+  document.getElementById('btnNovo').addEventListener('click', async function () {
+    var titulo = prompt('Titulo do tutorial:'); if (!titulo) return;
+    var categoria = prompt('Categoria (ex: Imposto, NFS-e, Cadastro):', 'Outros') || 'Outros';
+    try {
+      await api.post('/admin/tutoriais', { titulo: titulo, categoria: categoria });
+      toast('Tutorial criado'); carregar();
+    } catch (e) { toast('Erro', { desc: e.message, tipo: 'erro' }); }
+  });
+
+  window.remover = async function (id) {
+    if (!confirm('Remover este tutorial?')) return;
+    try { await api.del('/admin/tutoriais/' + id); toast('Removido'); carregar(); }
+    catch (e) { toast('Erro', { desc: e.message, tipo: 'erro' }); }
+  };
+
+  carregar();
+})();
 </script>
 </body>
 </html>

@@ -44,24 +44,47 @@
 </div>
 
 <script src="assets/js/utils.js"></script>
-<script src="assets/js/data.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/shell.js"></script>
 <script>
+(async function () {
   renderShell({ pagina: 'relatorios.html', titulo: 'Relatorios' });
+
+  var lancamentos = [];
+  try {
+    lancamentos = ((await api.get('/lancamentos')).lancamentos || []).map(function (l) { l.valor = Number(l.valor); return l; });
+  } catch (e) { erroCarregar(document.getElementById('kpis'), e); return; }
+
   var receitas = 0, despesas = 0;
   for (var i = 0; i < lancamentos.length; i++) {
     if (lancamentos[i].tipo === 'receita') receitas += lancamentos[i].valor;
     else despesas += lancamentos[i].valor;
   }
   var lucro = receitas - despesas;
-  var margem = (lucro / receitas) * 100;
+  var margem = receitas > 0 ? (lucro / receitas) * 100 : 0;
   document.getElementById('kpis').innerHTML =
     '<div class="kpi"><div><div class="kpi-label">Receita total</div><div class="kpi-valor text-verde">' + brl(receitas) + '</div></div><div class="kpi-icone verde">📈</div></div>' +
     '<div class="kpi"><div><div class="kpi-label">Despesa total</div><div class="kpi-valor text-vermelho">' + brl(despesas) + '</div></div><div class="kpi-icone vermelho">📉</div></div>' +
     '<div class="kpi"><div><div class="kpi-label">Lucro liquido</div><div class="kpi-valor">' + brl(lucro) + '</div></div><div class="kpi-icone roxo">💰</div></div>' +
     '<div class="kpi"><div><div class="kpi-label">Margem</div><div class="kpi-valor">' + pct(margem) + '</div></div><div class="kpi-icone amarelo">%</div></div>';
-  var data = faturamentoMensal.map(function(m) { return { mes: m.mes, receita: m.valor, despesa: Math.round(m.valor * 0.25), lucro: Math.round(m.valor * 0.75) }; });
-  var labels = data.map(function(d) { return d.mes; });
+
+  // Buckets reais dos ultimos 12 meses a partir dos lancamentos.
+  var hoje = new Date();
+  var data = [];
+  for (var k = 11; k >= 0; k--) {
+    var dt = new Date(hoje.getFullYear(), hoje.getMonth() - k, 1);
+    var nome = dt.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+    nome = nome.charAt(0).toUpperCase() + nome.slice(1);
+    var rec = 0, des = 0;
+    for (var j = 0; j < lancamentos.length; j++) {
+      var dl = new Date(lancamentos[j].data);
+      if (dl.getMonth() === dt.getMonth() && dl.getFullYear() === dt.getFullYear()) {
+        if (lancamentos[j].tipo === 'receita') rec += lancamentos[j].valor; else des += lancamentos[j].valor;
+      }
+    }
+    data.push({ mes: nome, receita: rec, despesa: des, lucro: rec - des });
+  }
+  var labels = data.map(function (d) { return d.mes; });
   new Chart(document.getElementById('g1'), {
     type: 'bar',
     data: { labels: labels, datasets: [
@@ -95,6 +118,7 @@
   pieChart('g3', 'receita');
   pieChart('g4', 'despesa');
   lucide.createIcons();
+})();
 </script>
 </body>
 </html>

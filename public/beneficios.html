@@ -24,8 +24,8 @@
 
       <div class="card card-shadow mb-5" style="background: var(--roxo); color: #fff">
         <div class="text-xs uppercase font-bold" style="opacity:0.8">Tempo de contribuicao</div>
-        <div class="text-3xl font-extrabold tabular mt-1">28 meses</div>
-        <div class="text-sm mt-1" style="opacity:0.85">Voce contribui regularmente desde janeiro de 2023.</div>
+        <div class="text-3xl font-extrabold tabular mt-1" id="tempoContrib">—</div>
+        <div class="text-sm mt-1" style="opacity:0.85" id="contribDesc">Estimativa com base na abertura do seu MEI.</div>
       </div>
 
       <div id="lista"></div>
@@ -35,35 +35,50 @@
 </div>
 
 <script src="assets/js/utils.js"></script>
-<script src="assets/js/data.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/shell.js"></script>
 <script>
+(async function () {
   renderShell({ pagina: 'beneficios.html', titulo: 'Beneficios' });
-  var beneficios = [
-    { nome: 'Auxilio-doenca', carencia: 12, contrib: 28, valor: 'R$ 1.412,00', desc: 'Concedido em caso de incapacidade temporaria por mais de 15 dias.', apto: true },
-    { nome: 'Salario-maternidade', carencia: 10, contrib: 28, valor: 'R$ 1.412,00', desc: 'Concedido por 120 dias apos parto, adocao ou guarda judicial.', apto: true },
-    { nome: 'Aposentadoria por idade', carencia: 180, contrib: 28, valor: 'R$ 1.412,00', desc: 'Mulher: 62 anos. Homem: 65 anos. Minimo 15 anos de contribuicao.', apto: false },
-    { nome: 'Aposentadoria por invalidez', carencia: 12, contrib: 28, valor: 'R$ 1.412,00', desc: 'Em caso de incapacidade total e permanente para o trabalho.', apto: true },
-    { nome: 'Pensao por morte', carencia: 18, contrib: 28, valor: 'R$ 1.412,00', desc: 'Devida aos dependentes do segurado falecido.', apto: true }
-  ];
+
+  var dados, perfil;
+  try {
+    var r = await Promise.all([api.get('/beneficios'), api.get('/perfil')]);
+    dados = r[0]; perfil = r[1].perfil || {};
+  } catch (e) { erroCarregar(document.getElementById('lista'), e); return; }
+
+  // Meses de contribuicao estimados a partir da abertura do MEI.
+  var meses = 0;
+  if (perfil.abertura) {
+    var ab = new Date(perfil.abertura), ho = new Date();
+    meses = Math.max(0, (ho.getFullYear() - ab.getFullYear()) * 12 + (ho.getMonth() - ab.getMonth()));
+  }
+  document.getElementById('tempoContrib').textContent = meses + ' meses';
+  document.getElementById('contribDesc').textContent = perfil.abertura
+    ? ('Estimativa desde a abertura do MEI (' + dataBR(perfil.abertura) + ').')
+    : 'Informe a data de abertura no Perfil para estimar suas carencias.';
+
   var html = '';
-  for (var i = 0; i < beneficios.length; i++) {
-    var b = beneficios[i];
-    var prog = Math.min(100, (b.contrib / b.carencia) * 100);
+  var lista = dados.beneficios || [];
+  for (var i = 0; i < lista.length; i++) {
+    var b = lista[i];
+    var apto = meses >= b.carenciaMeses;
+    var prog = b.carenciaMeses > 0 ? Math.min(100, (meses / b.carenciaMeses) * 100) : 100;
     html += '<details class="card mb-3"><summary style="cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center">';
-    html += '<div><b>' + b.nome + '</b><div class="text-xs text-suave mt-1">Carencia: ' + b.carencia + ' meses</div></div>';
-    html += '<span class="badge ' + (b.apto ? 'badge-verde' : 'badge-amarelo') + '">' + (b.apto ? 'Apto' : 'Em progresso') + '</span></summary>';
-    html += '<div class="mt-4 text-sm text-suave">' + b.desc + '</div>';
-    if (!b.apto) {
-      html += '<div class="mt-3"><div class="flex justify-between text-xs mb-1"><span>Progresso da carencia</span><span class="font-bold tabular">' + b.contrib + '/' + b.carencia + ' meses</span></div>';
+    html += '<div><b>' + b.nome + '</b><div class="text-xs text-suave mt-1">Carencia: ' + b.carenciaMeses + ' meses</div></div>';
+    html += '<span class="badge ' + (apto ? 'badge-verde' : 'badge-amarelo') + '">' + (apto ? 'Apto' : 'Em progresso') + '</span></summary>';
+    html += '<div class="mt-4 text-sm text-suave">' + (b.observacao || '') + '</div>';
+    if (!apto) {
+      html += '<div class="mt-3"><div class="flex justify-between text-xs mb-1"><span>Progresso da carencia</span><span class="font-bold tabular">' + meses + '/' + b.carenciaMeses + ' meses</span></div>';
       html += '<div class="progress" style="height:8px"><div class="progress-bar amarelo" style="width:' + prog + '%"></div></div></div>';
     }
-    html += '<div class="flex justify-between items-center flex-wrap gap-3 mt-4"><div><div class="text-xs text-suave">Valor estimado</div><div class="font-bold tabular text-lg">' + b.valor + '</div></div>';
-    html += '<button class="btn btn-outline btn-sm">↗ Saber mais no Meu INSS</button></div>';
+    html += '<div class="flex justify-between items-center flex-wrap gap-3 mt-4"><div><div class="text-xs text-suave">Valor estimado</div><div class="font-bold tabular text-lg">' + brl(Number(b.valor)) + '</div></div>';
+    html += '<a class="btn btn-outline btn-sm" href="https://meu.inss.gov.br/" target="_blank" rel="noopener">↗ Saber mais no Meu INSS</a></div>';
     html += '</details>';
   }
   document.getElementById('lista').innerHTML = html;
   lucide.createIcons();
+})();
 </script>
 </body>
 </html>

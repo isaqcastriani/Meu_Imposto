@@ -34,36 +34,50 @@
 </div>
 
 <script src="assets/js/utils.js"></script>
-<script src="assets/js/data.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/shell.js"></script>
 <script>
   renderShell({ pagina: 'cnpj.html', titulo: 'Consultar CNPJ' });
-  document.getElementById('cnpj').addEventListener('input', function(e) {
+  document.getElementById('cnpj').addEventListener('input', function (e) {
     e.target.value = mascaraCNPJ(e.target.value);
     document.getElementById('btn').disabled = e.target.value.replace(/\D/g, '').length !== 14;
   });
-  function consultar() {
+  async function consultar() {
     var btn = document.getElementById('btn');
+    var cnpj = document.getElementById('cnpj').value.replace(/\D/g, '');
     btn.disabled = true; btn.textContent = 'Consultando...';
-    setTimeout(function() {
+    var d;
+    try {
+      d = await api.get('/cnpj/' + cnpj);   // consulta real (BrasilAPI via backend)
+    } catch (err) {
+      document.getElementById('resultado').innerHTML = '';
+      toast('Nao encontrado', { desc: err.message, tipo: 'erro' });
       btn.textContent = '🔍 Consultar'; btn.disabled = false;
-      var html = '<div class="card card-shadow">';
-      html += '<div class="flex justify-between items-start mb-4" style="border-bottom:1px solid var(--borda);padding-bottom:16px">';
-      html += '<div class="flex gap-3 items-start"><div class="kpi-icone roxo" style="background:var(--roxo);color:#fff">🏢</div>';
-      html += '<div><h2 class="text-xl font-extrabold">' + usuarioMEI.razaoSocial + '</h2>';
-      html += '<p class="text-sm text-suave">' + usuarioMEI.nomeFantasia + '</p>';
-      html += '<p class="text-xs text-suave tabular mt-1">' + document.getElementById('cnpj').value + '</p></div></div>';
-      html += '<span class="badge badge-verde">ATIVA</span></div>';
-      html += '<div class="grid grid-2 mb-4"><div><div class="text-xs text-suave font-semibold">Abertura</div><div class="font-bold tabular">📅 ' + usuarioMEI.abertura + '</div></div>';
-      html += '<div><div class="text-xs text-suave font-semibold">Capital social</div><div class="font-bold tabular">R$ 1.000,00</div></div>';
-      html += '<div style="grid-column:span 2"><div class="text-xs text-suave font-semibold">Endereco</div><div class="font-semibold">📍 ' + usuarioMEI.endereco + '</div></div></div>';
-      html += '<div class="mb-4"><div class="text-xs text-suave font-semibold mb-1">CNAE principal</div><div class="font-bold">' + usuarioMEI.cnae + ' — ' + usuarioMEI.cnaeDesc + '</div></div>';
-      html += '<div class="mb-4"><div class="text-xs text-suave font-semibold mb-2">CNAEs secundarios</div>';
-      html += '<ul style="list-style:none;padding:0;font-size:14px"><li class="text-suave">• 6202-3/00 - Desenvolvimento e licenciamento de programas customizaveis</li><li class="text-suave">• 6311-9/00 - Tratamento de dados</li></ul></div>';
-      html += '<div class="sucesso-box flex gap-3 items-center"><span style="font-size:20px">✅</span><b>Atividade permitida para MEI</b></div>';
-      html += '</div>';
-      document.getElementById('resultado').innerHTML = html;
-    }, 1100);
+      return;
+    }
+    btn.textContent = '🔍 Consultar'; btn.disabled = false;
+
+    var bruto = d.bruto || {};
+    var permitidoMEI = bruto.opcao_pelo_mei === true;
+    var capital = (bruto.capital_social != null) ? brl(Number(bruto.capital_social)) : '—';
+    var html = '<div class="card card-shadow">';
+    html += '<div class="flex justify-between items-start mb-4" style="border-bottom:1px solid var(--borda);padding-bottom:16px">';
+    html += '<div class="flex gap-3 items-start"><div class="kpi-icone roxo" style="background:var(--roxo);color:#fff">🏢</div>';
+    html += '<div><h2 class="text-xl font-extrabold">' + (d.razaoSocial || '—') + '</h2>';
+    html += '<p class="text-sm text-suave">' + (d.nomeFantasia || '') + '</p>';
+    html += '<p class="text-xs text-suave tabular mt-1">' + mascaraCNPJ(cnpj) + '</p></div></div>';
+    html += '<span class="badge ' + ((d.situacao || '').toUpperCase() === 'ATIVA' ? 'badge-verde' : 'badge-amarelo') + '">' + (d.situacao || '—') + '</span></div>';
+    html += '<div class="grid grid-2 mb-4"><div><div class="text-xs text-suave font-semibold">Abertura</div><div class="font-bold tabular">📅 ' + dataBR(d.abertura) + '</div></div>';
+    html += '<div><div class="text-xs text-suave font-semibold">Capital social</div><div class="font-bold tabular">' + capital + '</div></div>';
+    html += '<div style="grid-column:span 2"><div class="text-xs text-suave font-semibold">Endereco</div><div class="font-semibold">📍 ' + (d.endereco || '—') + '</div></div></div>';
+    html += '<div class="mb-4"><div class="text-xs text-suave font-semibold mb-1">CNAE principal</div><div class="font-bold">' + (d.cnae || '—') + ' — ' + (d.cnaeDesc || '') + '</div></div>';
+    if (permitidoMEI) {
+      html += '<div class="sucesso-box flex gap-3 items-center"><span style="font-size:20px">✅</span><b>Optante pelo MEI / Simples Nacional</b></div>';
+    } else {
+      html += '<div class="aviso-box flex gap-3 items-center"><span style="font-size:20px">ℹ️</span><b>Nao consta como optante pelo MEI</b></div>';
+    }
+    html += '</div>';
+    document.getElementById('resultado').innerHTML = html;
   }
   lucide.createIcons();
 </script>

@@ -39,31 +39,41 @@
 </div>
 
 <script src="assets/js/utils.js"></script>
-<script src="assets/js/data.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/shell.js"></script>
 <script>
+(async function () {
   renderShell({ pagina: 'tutoriais.html', titulo: 'Tutoriais' });
-  var cats = ['Todas', 'Cadastro', 'Imposto', 'NFS-e', 'Declaracoes', 'Beneficios', 'Outros'];
+
+  var tutoriais = [];
+  try { tutoriais = (await api.get('/tutoriais')).tutoriais || []; }
+  catch (e) { erroCarregar(document.getElementById('lista'), e); return; }
+
+  // Categorias derivadas dos dados reais.
+  var setc = {}; tutoriais.forEach(function (t) { if (t.categoria) setc[t.categoria] = true; });
+  var cats = ['Todas'].concat(Object.keys(setc));
   var catAtiva = 'Todas';
+
   var rh = '';
-  for (var i = 0; i < 3; i++) {
+  for (var i = 0; i < Math.min(3, tutoriais.length); i++) {
     var t = tutoriais[i];
     rh += '<a href="tutorial.html?id=' + t.id + '" style="padding:16px;border-radius:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;display:block">' +
       '<div style="font-size:20px;color:var(--amarelo)">📖</div>' +
       '<div class="font-bold text-sm mt-2">' + t.titulo + '</div>' +
-      '<div class="text-xs mt-1" style="opacity:0.75">' + t.tempo + ' · ' + t.dificuldade + '</div></a>';
+      '<div class="text-xs mt-1" style="opacity:0.75">' + (t.tempo || '') + ' · ' + (t.dificuldade || '') + '</div></a>';
   }
   document.getElementById('recomendados').innerHTML = rh;
-  var ch = '';
-  for (var i = 0; i < cats.length; i++) {
-    ch += '<button class="btn ' + (cats[i] === catAtiva ? 'btn-primary' : 'btn-outline') + ' btn-sm" onclick="setCat(\'' + cats[i] + '\')">' + cats[i] + '</button>';
+
+  function renderCats() {
+    document.getElementById('categorias').innerHTML = cats.map(function (x) {
+      return '<button class="btn ' + (x === catAtiva ? 'btn-primary' : 'btn-outline') + ' btn-sm" onclick="setCat(\'' + x + '\')">' + x + '</button>';
+    }).join('');
   }
-  document.getElementById('categorias').innerHTML = ch;
-  function setCat(c) { catAtiva = c; renderLista(); document.getElementById('categorias').innerHTML = cats.map(function(x) { return '<button class="btn ' + (x === catAtiva ? 'btn-primary' : 'btn-outline') + ' btn-sm" onclick="setCat(\'' + x + '\')">' + x + '</button>'; }).join(''); }
-  function renderLista() {
+  window.setCat = function (c) { catAtiva = c; renderLista(); renderCats(); };
+  window.renderLista = function () {
     var q = document.getElementById('q').value.toLowerCase();
-    var lista = tutoriais.filter(function(t) {
-      return (catAtiva === 'Todas' || t.categoria === catAtiva) && t.titulo.toLowerCase().indexOf(q) !== -1;
+    var lista = tutoriais.filter(function (t) {
+      return (catAtiva === 'Todas' || t.categoria === catAtiva) && (t.titulo || '').toLowerCase().indexOf(q) !== -1;
     });
     var html = '';
     for (var i = 0; i < lista.length; i++) {
@@ -73,12 +83,14 @@
         '<span class="badge badge-outline mb-2">' + t.categoria + '</span>' +
         '<h3 class="text-sm">' + t.titulo + '</h3>' +
         '<div class="flex justify-between text-xs text-suave mt-3" style="border-top:1px solid var(--borda);padding-top:10px">' +
-        '<span>' + t.tempo + '</span><span>' + t.dificuldade + '</span></div></a>';
+        '<span>' + (t.tempo || '') + '</span><span>' + (t.dificuldade || '') + '</span></div></a>';
     }
-    document.getElementById('lista').innerHTML = html;
-  }
+    document.getElementById('lista').innerHTML = html || '<div class="text-sm text-suave">Nenhum tutorial encontrado.</div>';
+  };
+  renderCats();
   renderLista();
   lucide.createIcons();
+})();
 </script>
 </body>
 </html>

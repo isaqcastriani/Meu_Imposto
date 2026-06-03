@@ -57,25 +57,45 @@
 </div>
 
 <script src="assets/js/utils.js"></script>
-<script src="assets/js/data.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/shell.js"></script>
 <script>
+(async function () {
   renderShell({ pagina: 'dashboard.html', titulo: 'Dashboard' });
+  var u = usuarioLogado();
+  document.querySelector('h1.text-2xl').textContent = 'Ola, ' + ((u && u.nome) ? u.nome.split(' ')[0] : 'MEI') + ' 👋';
+
   var hoje = new Date();
   var dataStr = hoje.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
-  document.getElementById('hojeData').innerHTML = dataStr.charAt(0).toUpperCase() + dataStr.slice(1) +
-    ' · <span class="text-amarelo font-semibold">DAS de novembro vence em 12 dias</span>';
-  var mesAtual = hoje.getMonth();
-  var receitasMes = 0, despesasMes = 0;
-  for (var i = 0; i < lancamentos.length; i++) {
-    var l = lancamentos[i];
-    if (new Date(l.data).getMonth() === mesAtual) {
-      if (l.tipo === 'receita') receitasMes += l.valor;
-      else despesasMes += l.valor;
-    }
+
+  // Busca tudo em paralelo no backend.
+  var resumo, das, alertas;
+  try {
+    var r = await Promise.all([
+      api.get('/financeiro/resumo'),
+      api.get('/das/atual'),
+      api.get('/alertas')
+    ]);
+    resumo = r[0]; das = r[1]; alertas = (r[2] && r[2].alertas) || [];
+  } catch (e) {
+    erroCarregar(document.getElementById('kpis'), e);
+    return;
   }
-  var saldoMes = receitasMes - despesasMes;
-  var restante = TETO_MEI - faturamentoAnual;
+
+  var TETO_MEI = resumo.teto;
+  var faturamentoAnual = resumo.faturamentoAnual;
+  var faturamentoMensal = resumo.faturamentoMensal;
+  var percentTeto = resumo.percentTeto;
+  var receitasMes = resumo.mesCorrente.receita;
+  var despesasMes = resumo.mesCorrente.despesa;
+  var saldoMes = resumo.mesCorrente.saldo;
+  var restante = resumo.restanteTeto;
+  var dasAtual = { total: das.total, vencimento: dataBR(das.vencimento), inss: das.inss, iss: das.iss, icms: das.icms };
+  var diasDas = diasAte(das.vencimento);
+
+  document.getElementById('hojeData').innerHTML = dataStr.charAt(0).toUpperCase() + dataStr.slice(1) +
+    ' · <span class="text-amarelo font-semibold">DAS vence em ' + diasDas + ' dias</span>';
+
   var kpisHtml = '';
   function kpiCard(label, valor, hint, icone, cor) {
     return '<div class="kpi"><div><div class="kpi-label">' + label + '</div>' +
@@ -83,10 +103,10 @@
       (hint ? '<div class="kpi-hint">' + hint + '</div>' : '') +
       '</div><div class="kpi-icone ' + cor + '"><i data-lucide="' + icone + '"></i></div></div>';
   }
-  kpisHtml += kpiCard('Faturamento no ano', brl(faturamentoAnual), '<span class="text-verde font-semibold">↑ 12,4% vs mes anterior</span>', 'wallet', 'roxo');
-  kpisHtml += kpiCard('DAS do mes', brl(dasAtual.total), '<span class="text-amarelo font-semibold">Pendente · vence ' + dasAtual.vencimento + '</span>', 'calculator', 'amarelo');
+  kpisHtml += kpiCard('Faturamento no ano', brl(faturamentoAnual), '<span class="text-suave">Receitas lancadas em ' + new Date().getFullYear() + '</span>', 'wallet', 'roxo');
+  kpisHtml += kpiCard('DAS do mes', brl(dasAtual.total), '<span class="text-amarelo font-semibold">Vence ' + dasAtual.vencimento + '</span>', 'calculator', 'amarelo');
   kpisHtml += kpiCard('Saldo do mes', brl(saldoMes), brl(receitasMes) + ' − ' + brl(despesasMes), saldoMes >= 0 ? 'trending-up' : 'trending-down', saldoMes >= 0 ? 'verde' : 'vermelho');
-  kpisHtml += kpiCard('Proxima obrigacao', 'DAS-MEI', dasAtual.vencimento + ' · em 12 dias', 'calendar', 'amarelo');
+  kpisHtml += kpiCard('Proxima obrigacao', 'DAS-MEI', dasAtual.vencimento + ' · em ' + diasDas + ' dias', 'calendar', 'amarelo');
   document.getElementById('kpis').innerHTML = kpisHtml;
   var corTeto = percentTeto >= 90 ? 'vermelho' : (percentTeto >= 70 ? 'amarelo' : 'verde');
   var labelTeto = percentTeto >= 90 ? 'Critico' : (percentTeto >= 70 ? 'Atencao' : 'Tranquilo');
@@ -109,10 +129,10 @@
     alertasHtml += '<div class="alerta ' + a.tipo + '">' +
       '<div class="alerta-icone">' + (a.tipo === 'warning' ? '⚠' : '🔔') + '</div>' +
       '<div><div class="font-semibold text-sm">' + a.titulo + '</div>' +
-      '<div class="text-xs text-suave mt-1">' + a.desc + '</div>' +
-      '<div class="text-xs text-suave mt-1">' + a.quando + '</div></div></div>';
+      '<div class="text-xs text-suave mt-1">' + (a.descricao || '') + '</div>' +
+      '<div class="text-xs text-suave mt-1">' + tempoRelativo(a.created_at) + '</div></div></div>';
   }
-  document.getElementById('listaAlertas').innerHTML = alertasHtml;
+  document.getElementById('listaAlertas').innerHTML = alertasHtml || '<div class="text-sm text-suave">Nenhum alerta no momento.</div>';
   var atalhos = [
     { url: 'nfse-nova.html', icone: 'file-text', label: 'Emitir NFS-e', cor: 'roxo' },
     { url: 'financeiro-novo.html', icone: 'plus-circle', label: 'Lancar receita', cor: 'verde' },
@@ -159,6 +179,7 @@
     }
   });
   setTimeout(function() { lucide.createIcons(); }, 50);
+})();
 </script>
 </body>
 </html>

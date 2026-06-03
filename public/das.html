@@ -25,7 +25,7 @@
       <div class="card card-shadow flex items-center gap-4 mb-5 flex-wrap">
         <div class="kpi-icone roxo"><i data-lucide="building-2"></i></div>
         <div class="flex-1" id="atividadeBox"></div>
-        <span class="badge badge-roxo">Tipo: Servicos</span>
+        <span class="badge badge-roxo" id="tipoBadge">Tipo: —</span>
       </div>
 
       <div class="grid mb-5" style="grid-template-columns: 1.2fr 1fr; gap: 20px">
@@ -33,7 +33,7 @@
           <div class="text-xs uppercase font-bold text-suave">DAS deste mes</div>
           <div class="text-roxo font-extrabold tabular" style="font-size: 56px; margin: 12px 0" id="dasTotal"></div>
           <div class="text-amarelo font-semibold" id="dasVenc"></div>
-          <button class="btn btn-primary btn-lg mt-5" onclick="toast('Redirecionando para o PGMEI...', { tipo: 'info' })">📄 Gerar boleto no PGMEI ↗</button>
+          <button class="btn btn-primary btn-lg mt-5" id="btnGerar">📄 Gerar guia do mes</button>
         </div>
 
         <div class="card card-shadow">
@@ -64,20 +64,33 @@
 </div>
 
 <script src="assets/js/utils.js"></script>
-<script src="assets/js/data.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/shell.js"></script>
 <script>
+(async function () {
   renderShell({ pagina: 'das.html', titulo: 'DAS' });
+
+  var perfil, das, hist;
+  try {
+    var r = await Promise.all([api.get('/perfil'), api.get('/das/atual'), api.get('/das/historico')]);
+    perfil = r[0].perfil || {}; das = r[1]; hist = (r[2] && r[2].guias) || [];
+  } catch (e) { erroCarregar(document.getElementById('detalheDas'), e); return; }
+
+  var cnae = perfil.cnae || '—';
+  var cnaeDesc = perfil.cnae_desc || 'Atividade nao informada';
   document.getElementById('atividadeBox').innerHTML =
-    '<div class="text-xs text-suave font-semibold">Atividade detectada</div>' +
-    '<div class="font-bold">' + usuarioMEI.cnae + ' — ' + usuarioMEI.cnaeDesc + '</div>';
-  document.getElementById('dasTotal').textContent = brl(dasAtual.total);
-  document.getElementById('dasTotal2').textContent = brl(dasAtual.total);
-  document.getElementById('dasVenc').textContent = 'Vence em ' + dasAtual.vencimento;
+    '<div class="text-xs text-suave font-semibold">Atividade</div>' +
+    '<div class="font-bold">' + cnae + ' — ' + cnaeDesc + '</div>';
+  document.getElementById('tipoBadge').textContent = 'Tipo: ' + (das.tipo || '—');
+
+  var vencBR = dataBR(das.vencimento);
+  document.getElementById('dasTotal').textContent = brl(das.total);
+  document.getElementById('dasTotal2').textContent = brl(das.total);
+  document.getElementById('dasVenc').textContent = 'Vence em ' + vencBR + ' (' + diasAte(das.vencimento) + ' dias)';
   var detalhes = [
-    { label: 'INSS', desc: '5% do salario minimo', valor: dasAtual.inss },
-    { label: 'ISS', desc: 'Apenas servicos', valor: dasAtual.iss },
-    { label: 'ICMS', desc: 'Comercio e industria', valor: dasAtual.icms }
+    { label: 'INSS', desc: '5% do salario minimo', valor: das.inss },
+    { label: 'ISS', desc: 'Apenas servicos', valor: das.iss },
+    { label: 'ICMS', desc: 'Comercio e industria', valor: das.icms }
   ];
   var dh = '';
   for (var i = 0; i < detalhes.length; i++) {
@@ -87,14 +100,32 @@
       '<div class="font-bold tabular">' + brl(d.valor) + '</div></div>';
   }
   document.getElementById('detalheDas').innerHTML = dh;
-  var hh = '';
-  for (var i = 0; i < historicoDAS.length; i++) {
-    var h = historicoDAS[i];
-    var cor = h.status === 'Pago' ? 'badge-verde' : 'badge-amarelo';
-    hh += '<tr><td class="font-semibold">' + h.competencia + '</td><td class="tabular">' + h.vencimento + '</td><td class="font-bold tabular">' + brl(h.valor) + '</td><td><span class="badge ' + cor + '">' + h.status + '</span></td></tr>';
+
+  function renderHist(guias) {
+    var hh = '';
+    for (var i = 0; i < guias.length; i++) {
+      var h = guias[i];
+      var pago = h.status === 'pago';
+      var cor = pago ? 'badge-verde' : 'badge-amarelo';
+      hh += '<tr><td class="font-semibold">' + dataBR(h.competencia) + '</td><td class="tabular">' + dataBR(h.vencimento) + '</td><td class="font-bold tabular">' + brl(Number(h.valor)) + '</td><td><span class="badge ' + cor + '">' + (pago ? 'Pago' : 'Pendente') + '</span></td></tr>';
+    }
+    document.getElementById('hist').innerHTML = hh || '<tr><td colspan="4" class="text-center text-suave" style="padding:20px">Nenhuma guia gerada ainda.</td></tr>';
   }
-  document.getElementById('hist').innerHTML = hh;
+  renderHist(hist);
+
+  document.getElementById('btnGerar').addEventListener('click', async function () {
+    var b = this; b.disabled = true; b.textContent = 'Gerando...';
+    try {
+      await api.post('/das/gerar', {});
+      var nova = await api.get('/das/historico');
+      renderHist((nova && nova.guias) || []);
+      toast('Guia do mes gerada!', { desc: 'Adicionada ao historico.' });
+    } catch (e) { toast('Erro ao gerar', { desc: e.message, tipo: 'erro' }); }
+    b.disabled = false; b.textContent = '📄 Gerar guia do mes';
+  });
+
   lucide.createIcons();
+})();
 </script>
 </body>
 </html>

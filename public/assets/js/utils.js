@@ -55,5 +55,34 @@ function getParam(nome) {
   return p.get(nome);
 }
 function dataBR(iso) {
+  if (!iso) return "-";
   return new Date(iso).toLocaleDateString("pt-BR");
+}
+// Tempo relativo simples a partir de uma data ISO (ex.: "ha 2 dias").
+function tempoRelativo(iso) {
+  if (!iso) return "";
+  var diff = Date.now() - new Date(iso).getTime();
+  var min = Math.floor(diff / 60000);
+  if (min < 1) return "agora";
+  if (min < 60) return "ha " + min + " min";
+  var h = Math.floor(min / 60);
+  if (h < 24) return "ha " + h + "h";
+  var d = Math.floor(h / 24);
+  if (d === 1) return "ontem";
+  if (d < 30) return "ha " + d + " dias";
+  var meses = Math.floor(d / 30);
+  return "ha " + meses + (meses === 1 ? " mes" : " meses");
+}
+// Dias inteiros entre hoje e uma data ISO (positivo = futuro).
+function diasAte(iso) {
+  if (!iso) return 0;
+  var hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+  var alvo = new Date(iso); alvo.setHours(0, 0, 0, 0);
+  return Math.round((alvo - hoje) / 86400000);
+}
+// Mostra um estado de erro amigavel num container e dispara toast.
+function erroCarregar(el, err) {
+  var msg = (err && err.message) ? err.message : "Falha ao carregar";
+  if (el) el.innerHTML = '<div class="card" style="text-align:center;color:var(--vermelho)">⚠ ' + msg + '</div>';
+  if (typeof toast === "function") toast("Erro ao carregar dados", { desc: msg, tipo: "erro" });
 }

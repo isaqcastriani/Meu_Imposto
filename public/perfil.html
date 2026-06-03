@@ -36,7 +36,7 @@
           <div class="form-group"><label class="label">CPF</label><input class="input" id="pCpf" disabled></div>
           <div class="form-group"><label class="label">Telefone</label><input class="input" id="pTel"></div>
         </div>
-        <button class="btn btn-primary mt-3" onclick="toast('Dados atualizados!')">Salvar alteracoes</button>
+        <button class="btn btn-primary mt-3" id="btnSalvarPessoais">Salvar alteracoes</button>
       </div>
 
       <div id="tab-empresa" class="card card-shadow hidden">
@@ -48,8 +48,8 @@
           <div class="form-group" style="grid-column:span 2"><label class="label">Endereco</label><input class="input" id="eEnd"></div>
         </div>
         <div class="flex gap-2 mt-3">
-          <button class="btn btn-primary" onclick="toast('Salvo!')">Salvar</button>
-          <button class="btn btn-outline" onclick="toast('Sincronizando...', { tipo: 'info' })">Atualizar via API CNPJ</button>
+          <button class="btn btn-primary" id="btnSalvarEmpresa">Salvar</button>
+          <button class="btn btn-outline" id="btnSyncCnpj">Atualizar via API CNPJ</button>
         </div>
       </div>
 
@@ -57,7 +57,7 @@
         <div class="form-group"><label class="label">Senha atual</label><input class="input" type="password"></div>
         <div class="form-group"><label class="label">Nova senha</label><input class="input" type="password"></div>
         <div class="form-group"><label class="label">Confirmacao</label><input class="input" type="password"></div>
-        <button class="btn btn-primary" onclick="toast('Senha alterada!')">Alterar senha</button>
+        <button class="btn btn-primary" onclick="toast('Em breve', { desc: 'Alteracao de senha sera liberada em breve.', tipo: 'info' })">Alterar senha</button>
       </div>
 
       <div id="tab-notif" class="card card-shadow hidden">
@@ -69,19 +69,61 @@
 </div>
 
 <script src="assets/js/utils.js"></script>
-<script src="assets/js/data.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/shell.js"></script>
 <script>
   renderShell({ pagina: 'perfil.html', titulo: 'Perfil' });
-  document.getElementById('pNome').value = usuarioMEI.nome;
-  document.getElementById('pEmail').value = usuarioMEI.email;
-  document.getElementById('pCpf').value = usuarioMEI.cpf;
-  document.getElementById('pTel').value = usuarioMEI.telefone;
-  document.getElementById('eCnpj').value = usuarioMEI.cnpj;
-  document.getElementById('eRazao').value = usuarioMEI.razaoSocial;
-  document.getElementById('eFant').value = usuarioMEI.nomeFantasia;
-  document.getElementById('eCnae').value = usuarioMEI.cnae;
-  document.getElementById('eEnd').value = usuarioMEI.endereco;
+
+  function val(id, v) { document.getElementById(id).value = v || ''; }
+
+  (async function () {
+    var p;
+    try { p = (await api.get('/perfil')).perfil || {}; }
+    catch (e) { toast('Erro ao carregar perfil', { desc: e.message, tipo: 'erro' }); return; }
+    val('pNome', p.nome); val('pEmail', p.email); val('pCpf', p.cpf); val('pTel', p.telefone);
+    val('eCnpj', p.cnpj); val('eRazao', p.razao_social); val('eFant', p.nome_fantasia);
+    val('eCnae', p.cnae); val('eEnd', p.endereco);
+    window._cnpjAtual = (p.cnpj || '').replace(/\D/g, '');
+  })();
+
+  async function salvar(btn, payload) {
+    btn.disabled = true; var txt = btn.textContent; btn.textContent = 'Salvando...';
+    try {
+      await api.put('/perfil', payload);
+      // Atualiza o nome guardado na sessao (aparece na topbar/saudacao).
+      if (payload.nome) {
+        var u = usuarioLogado(); if (u) { u.nome = payload.nome; localStorage.setItem('mi_user', JSON.stringify(u)); }
+      }
+      toast('Dados atualizados!');
+    } catch (e) { toast('Erro ao salvar', { desc: e.message, tipo: 'erro' }); }
+    btn.disabled = false; btn.textContent = txt;
+  }
+
+  document.getElementById('btnSalvarPessoais').addEventListener('click', function () {
+    salvar(this, {
+      nome: document.getElementById('pNome').value.trim(),
+      telefone: document.getElementById('pTel').value.trim()
+    });
+  });
+  document.getElementById('btnSalvarEmpresa').addEventListener('click', function () {
+    salvar(this, {
+      razaoSocial: document.getElementById('eRazao').value.trim(),
+      nomeFantasia: document.getElementById('eFant').value.trim(),
+      endereco: document.getElementById('eEnd').value.trim()
+    });
+  });
+  document.getElementById('btnSyncCnpj').addEventListener('click', async function () {
+    var cnpj = window._cnpjAtual;
+    if (!cnpj || cnpj.length !== 14) { toast('CNPJ invalido no cadastro', { tipo: 'erro' }); return; }
+    this.disabled = true; var t = this.textContent; this.textContent = 'Sincronizando...';
+    try {
+      var d = await api.get('/cnpj/' + cnpj);
+      val('eRazao', d.razaoSocial); val('eFant', d.nomeFantasia); val('eCnae', d.cnae); val('eEnd', d.endereco);
+      toast('Dados da empresa atualizados via BrasilAPI');
+    } catch (e) { toast('Erro ao consultar', { desc: e.message, tipo: 'erro' }); }
+    this.disabled = false; this.textContent = t;
+  });
+
   function tab(qual, btn) {
     var todos = ['pessoais', 'empresa', 'senha', 'notif'];
     for (var i = 0; i < todos.length; i++) document.getElementById('tab-' + todos[i]).classList.add('hidden');

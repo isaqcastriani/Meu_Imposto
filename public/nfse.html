@@ -35,18 +35,43 @@
 </div>
 
 <script src="assets/js/utils.js"></script>
-<script src="assets/js/data.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/shell.js"></script>
 <script>
+(async function () {
   renderShell({ pagina: 'nfse.html', titulo: 'NFS-e' });
-  var html = '';
-  for (var i = 0; i < nfseList.length; i++) {
-    var n = nfseList[i];
-    var b = n.status === 'Emitida' ? 'badge-verde' : (n.status === 'Cancelada' ? 'badge-vermelho' : 'badge-amarelo');
-    html += '<tr><td class="font-bold tabular text-xs">' + n.numero + '</td><td class="tabular text-sm">' + n.data + '</td><td class="font-semibold">' + n.tomador + '</td><td class="font-bold tabular">' + brl(n.valor) + '</td><td><span class="badge ' + b + '">' + n.status + '</span></td><td class="text-right"><button class="btn btn-ghost btn-icon">👁</button><button class="btn btn-ghost btn-icon">⬇</button></td></tr>';
+
+  function render(notas) {
+    var html = '';
+    for (var i = 0; i < notas.length; i++) {
+      var n = notas[i];
+      var emitida = n.status === 'emitida';
+      var b = emitida ? 'badge-verde' : (n.status === 'cancelada' ? 'badge-vermelho' : 'badge-amarelo');
+      var rotulo = n.status.charAt(0).toUpperCase() + n.status.slice(1);
+      var acao = emitida
+        ? '<button class="btn btn-ghost btn-icon" title="Cancelar" onclick="cancelar(\'' + n.id + '\')">✕</button>'
+        : '';
+      html += '<tr><td class="font-bold tabular text-xs">' + n.numero + '</td><td class="tabular text-sm">' + dataBR(n.data) + '</td><td class="font-semibold">' + n.tomador + '</td><td class="font-bold tabular">' + brl(Number(n.valor)) + '</td><td><span class="badge ' + b + '">' + rotulo + '</span></td><td class="text-right">' + acao + '</td></tr>';
+    }
+    document.getElementById('tbody').innerHTML = html || '<tr><td colspan="6" class="text-center text-suave" style="padding:24px">Nenhuma NFS-e emitida ainda.</td></tr>';
+    lucide.createIcons();
   }
-  document.getElementById('tbody').innerHTML = html;
-  lucide.createIcons();
+
+  try {
+    var d = await api.get('/nfse');
+    render(d.notas || []);
+  } catch (e) { erroCarregar(document.getElementById('tbody').parentElement, e); }
+
+  window.cancelar = async function (id) {
+    if (!confirm('Cancelar esta NFS-e?')) return;
+    try {
+      await api.post('/nfse/' + id + '/cancelar', {});
+      var d = await api.get('/nfse');
+      render(d.notas || []);
+      toast('NFS-e cancelada');
+    } catch (e) { toast('Erro ao cancelar', { desc: e.message, tipo: 'erro' }); }
+  };
+})();
 </script>
 </body>
 </html>

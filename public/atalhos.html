@@ -29,15 +29,22 @@
 </div>
 
 <script src="assets/js/utils.js"></script>
-<script src="assets/js/data.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/shell.js"></script>
 <script>
+(async function () {
   renderShell({ pagina: 'atalhos.html', titulo: 'Atalhos' });
+
+  var atalhosGov = [];
+  try { atalhosGov = (await api.get('/atalhos')).atalhos || []; }
+  catch (e) { erroCarregar(document.getElementById('grupos'), e); return; }
+
   var grupos = {};
   for (var i = 0; i < atalhosGov.length; i++) {
     var a = atalhosGov[i];
-    if (!grupos[a.categoria]) grupos[a.categoria] = [];
-    grupos[a.categoria].push(a);
+    var cat = a.categoria || 'Outros';
+    if (!grupos[cat]) grupos[cat] = [];
+    grupos[cat].push(a);
   }
   var html = '';
   for (var cat in grupos) {
@@ -46,13 +53,14 @@
     for (var i = 0; i < grupos[cat].length; i++) {
       var a = grupos[cat][i];
       html += '<div class="card"><div class="kpi-icone roxo mb-3" style="background:var(--roxo);color:#fff">↗</div>';
-      html += '<h3>' + a.nome + '</h3><p class="text-sm text-suave mt-1">' + a.desc + '</p>';
-      html += '<a class="btn btn-outline w-full mt-4" href="' + a.url + '" target="_blank">Acessar ↗</a></div>';
+      html += '<h3>' + a.nome + '</h3><p class="text-sm text-suave mt-1">' + (a.descricao || '') + '</p>';
+      html += '<a class="btn btn-outline w-full mt-4" href="' + a.url + '" target="_blank" rel="noopener">Acessar ↗</a></div>';
     }
     html += '</div></div>';
   }
-  document.getElementById('grupos').innerHTML = html;
+  document.getElementById('grupos').innerHTML = html || '<div class="text-sm text-suave">Nenhum atalho cadastrado.</div>';
   lucide.createIcons();
+})();
 </script>
 </body>
 </html>

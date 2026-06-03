@@ -36,29 +36,36 @@
 </div>
 
 <script src="assets/js/utils.js"></script>
-<script src="assets/js/data.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/shell.js"></script>
 <script>
+(async function () {
   renderShell({ pagina: 'admin.html', titulo: 'Admin', admin: true });
+
+  var m;
+  try { m = await api.get('/admin/metricas'); }
+  catch (e) { erroCarregar(document.getElementById('kpis'), e); return; }
+
   document.getElementById('kpis').innerHTML =
-    '<div class="kpi"><div><div class="kpi-label">Total de usuarios</div><div class="kpi-valor">' + numero(adminMetricas.totalUsuarios) + '</div></div><div class="kpi-icone roxo">👥</div></div>' +
-    '<div class="kpi"><div><div class="kpi-label">Ativos hoje</div><div class="kpi-valor text-verde">' + numero(adminMetricas.ativosHoje) + '</div></div><div class="kpi-icone verde">⚡</div></div>' +
-    '<div class="kpi"><div><div class="kpi-label">DAS calculados (mes)</div><div class="kpi-valor">' + numero(adminMetricas.dasCalculados) + '</div></div><div class="kpi-icone amarelo">📄</div></div>' +
-    '<div class="kpi"><div><div class="kpi-label">NFS-e emitidas</div><div class="kpi-valor">' + numero(adminMetricas.nfseEmitidas) + '</div></div><div class="kpi-icone amarelo">📑</div></div>';
+    '<div class="kpi"><div><div class="kpi-label">Total de usuarios</div><div class="kpi-valor">' + numero(m.totalUsuarios) + '</div></div><div class="kpi-icone roxo">👥</div></div>' +
+    '<div class="kpi"><div><div class="kpi-label">Ativos (24h)</div><div class="kpi-valor text-verde">' + numero(m.ativosHoje) + '</div></div><div class="kpi-icone verde">⚡</div></div>' +
+    '<div class="kpi"><div><div class="kpi-label">DAS gerados</div><div class="kpi-valor">' + numero(m.dasCalculados) + '</div></div><div class="kpi-icone amarelo">📄</div></div>' +
+    '<div class="kpi"><div><div class="kpi-label">NFS-e emitidas</div><div class="kpi-valor">' + numero(m.nfseEmitidas) + '</div></div><div class="kpi-icone amarelo">📑</div></div>';
+
+  var cresc = m.crescimento || [];
   new Chart(document.getElementById('g1'), {
     type: 'line',
-    data: { labels: adminMetricas.crescimento.map(function(c) { return c.mes; }), datasets: [{ label: 'Usuarios', data: adminMetricas.crescimento.map(function(c) { return c.usuarios; }), borderColor: '#1e1b6b', borderWidth: 3, tension: 0.35, pointRadius: 5 }] },
+    data: { labels: cresc.map(function (c) { return c.mes; }), datasets: [{ label: 'Usuarios', data: cresc.map(function (c) { return c.usuarios; }), borderColor: '#1e1b6b', borderWidth: 3, tension: 0.35, pointRadius: 5 }] },
     options: { responsive: true, maintainAspectRatio: false }
   });
-  var max = adminMetricas.topFeatures[0].usos;
-  var th = '';
-  for (var i = 0; i < adminMetricas.topFeatures.length; i++) {
-    var f = adminMetricas.topFeatures[i];
-    th += '<div class="mb-3"><div class="flex justify-between text-sm mb-1"><span class="font-semibold"><span class="text-suave">#' + (i+1) + '</span> ' + f.nome + '</span><span class="font-bold tabular">' + numero(f.usos) + '</span></div>';
-    th += '<div class="progress" style="height:8px"><div class="progress-bar verde" style="width:' + ((f.usos/max)*100) + '%; background: linear-gradient(to right, var(--roxo), var(--roxo-claro))"></div></div></div>';
-  }
-  document.getElementById('topF').innerHTML = th;
+
+  // Resumo simples no lugar das "features" (metrica nao coletada no backend).
+  document.getElementById('topF').innerHTML =
+    '<div class="kpi mb-2"><div><div class="kpi-label">Usuarios MEI</div><div class="kpi-valor">' + numero(m.totalUsuarios) + '</div></div></div>' +
+    '<div class="kpi mb-2"><div><div class="kpi-label">DAS gerados</div><div class="kpi-valor">' + numero(m.dasCalculados) + '</div></div></div>' +
+    '<div class="kpi"><div><div class="kpi-label">NFS-e emitidas</div><div class="kpi-valor">' + numero(m.nfseEmitidas) + '</div></div></div>';
   lucide.createIcons();
+})();
 </script>
 </body>
 </html>

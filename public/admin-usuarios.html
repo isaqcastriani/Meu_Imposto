@@ -41,27 +41,49 @@
 </div>
 
 <script src="assets/js/utils.js"></script>
-<script src="assets/js/data.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/shell.js"></script>
 <script>
+(async function () {
   renderShell({ pagina: 'admin-usuarios.html', titulo: 'Usuarios', admin: true });
-  document.getElementById('subt').textContent = usuariosAdmin.length + ' usuarios cadastrados';
-  function render() {
+
+  var usuarios = [];
+  try { usuarios = (await api.get('/admin/usuarios')).usuarios || []; }
+  catch (e) { erroCarregar(document.getElementById('tbody').parentElement, e); return; }
+  document.getElementById('subt').textContent = usuarios.length + ' usuarios cadastrados';
+
+  window.render = function () {
     var q = document.getElementById('q').value.toLowerCase();
-    var lista = usuariosAdmin.filter(function(u) {
-      return u.nome.toLowerCase().indexOf(q) !== -1 || u.email.indexOf(q) !== -1 || u.cnpj.indexOf(q) !== -1;
+    var lista = usuarios.filter(function (u) {
+      return (u.nome || '').toLowerCase().indexOf(q) !== -1 || (u.email || '').indexOf(q) !== -1 || (u.cnpj || '').indexOf(q) !== -1;
     });
     var html = '';
     for (var i = 0; i < lista.length; i++) {
       var u = lista[i];
-      html += '<tr><td class="font-semibold">' + u.nome + '</td><td class="text-sm text-suave">' + u.email + '</td><td class="tabular text-xs">' + u.cnpj + '</td><td class="tabular text-xs">' + u.cadastro + '</td>';
-      html += '<td><span class="badge ' + (u.status === 'Ativo' ? 'badge-verde' : 'badge-cinza') + '">' + u.status + '</span></td>';
-      html += '<td class="text-right"><button class="btn btn-ghost btn-icon">⋮</button></td></tr>';
+      var ativo = u.status === 'ativo';
+      var acao = ativo
+        ? '<button class="btn btn-ghost btn-sm" onclick="toggle(\'' + u.id + '\',\'inativo\')">Desativar</button>'
+        : '<button class="btn btn-ghost btn-sm" onclick="toggle(\'' + u.id + '\',\'ativo\')" style="color:var(--verde)">Ativar</button>';
+      html += '<tr><td class="font-semibold">' + (u.nome || '—') + '</td><td class="text-sm text-suave">' + (u.email || '') + '</td><td class="tabular text-xs">' + (u.cnpj || '—') + '</td><td class="tabular text-xs">' + dataBR(u.created_at) + '</td>';
+      html += '<td><span class="badge ' + (ativo ? 'badge-verde' : 'badge-cinza') + '">' + (ativo ? 'Ativo' : 'Inativo') + '</span></td>';
+      html += '<td class="text-right">' + acao + '</td></tr>';
     }
-    document.getElementById('tbody').innerHTML = html;
-  }
+    document.getElementById('tbody').innerHTML = html || '<tr><td colspan="6" class="text-center text-suave" style="padding:24px">Nenhum usuario encontrado.</td></tr>';
+  };
+
+  window.toggle = async function (id, status) {
+    try {
+      await api.patch('/admin/usuarios/' + id + '/status', { status: status });
+      var alvo = usuarios.find(function (u) { return u.id === id; });
+      if (alvo) alvo.status = status;
+      render();
+      toast('Status atualizado');
+    } catch (e) { toast('Erro', { desc: e.message, tipo: 'erro' }); }
+  };
+
   render();
   lucide.createIcons();
+})();
 </script>
 </body>
 </html>

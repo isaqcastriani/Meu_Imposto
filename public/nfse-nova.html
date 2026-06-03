@@ -34,8 +34,8 @@
         <div class="card card-shadow mb-3">
           <h3 class="text-sm font-bold mb-3">Dados do tomador</h3>
           <div class="grid grid-2">
-            <div class="form-group"><label class="label">CPF / CNPJ</label><input class="input" required placeholder="000.000.000-00"></div>
-            <div class="form-group"><label class="label">Nome / Razao Social</label><input class="input" required placeholder="Nome do cliente"></div>
+            <div class="form-group"><label class="label">CPF / CNPJ</label><input class="input" id="tomadorDoc" placeholder="000.000.000-00"></div>
+            <div class="form-group"><label class="label">Nome / Razao Social</label><input class="input" id="tomador" required placeholder="Nome do cliente"></div>
             <div class="form-group"><label class="label">E-mail</label><input class="input" type="email" placeholder="cliente@email.com"></div>
             <div class="form-group"><label class="label">Endereco</label><input class="input" placeholder="Rua, numero, cidade"></div>
           </div>
@@ -43,7 +43,7 @@
 
         <div class="card card-shadow mb-3">
           <h3 class="text-sm font-bold mb-3">Dados do servico</h3>
-          <div class="form-group"><label class="label">Descricao</label><textarea class="textarea" rows="3" required placeholder="Descreva o servico prestado..."></textarea></div>
+          <div class="form-group"><label class="label">Descricao</label><textarea class="textarea" id="descricao" rows="3" required placeholder="Descreva o servico prestado..."></textarea></div>
           <div class="grid grid-3">
             <div class="form-group"><label class="label">Codigo de servico</label><input class="input" value="01.05"></div>
             <div class="form-group"><label class="label">Valor (R$)</label><input class="input" id="valor" placeholder="0,00" required></div>
@@ -80,27 +80,54 @@
 </div>
 
 <script src="assets/js/utils.js"></script>
-<script src="assets/js/data.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/shell.js"></script>
 <script>
   renderShell({ pagina: 'nfse.html', titulo: 'NFS-e' });
-  document.getElementById('prestador').innerHTML =
-    '<div><span class="text-suave">CNPJ:</span> <b class="tabular">' + usuarioMEI.cnpj + '</b></div>' +
-    '<div><span class="text-suave">Razao social:</span> <b>' + usuarioMEI.razaoSocial + '</b></div>' +
-    '<div style="grid-column:span 2"><span class="text-suave">CNAE:</span> <b>' + usuarioMEI.cnae + '</b></div>';
-  document.getElementById('valor').addEventListener('input', function(e) {
-    document.getElementById('totalNota').textContent = 'R$ ' + (e.target.value || '0,00');
+
+  // Preenche os dados do prestador a partir do perfil real.
+  (async function () {
+    try {
+      var p = (await api.get('/perfil')).perfil || {};
+      document.getElementById('prestador').innerHTML =
+        '<div><span class="text-suave">CNPJ:</span> <b class="tabular">' + (p.cnpj || '—') + '</b></div>' +
+        '<div><span class="text-suave">Razao social:</span> <b>' + (p.razao_social || p.nome || '—') + '</b></div>' +
+        '<div style="grid-column:span 2"><span class="text-suave">CNAE:</span> <b>' + (p.cnae || '—') + '</b></div>';
+    } catch (e) { /* segue sem bloquear a emissao */ }
+  })();
+
+  function parseValor(v) { return Number(String(v).replace(/\s/g, '').replace(/\./g, '').replace(',', '.')); }
+
+  document.getElementById('valor').addEventListener('input', function (e) {
+    var n = parseValor(e.target.value);
+    document.getElementById('totalNota').textContent = Number.isFinite(n) && n > 0 ? brl(n) : 'R$ 0,00';
   });
-  document.getElementById('form').addEventListener('submit', function(e) {
+
+  document.getElementById('form').addEventListener('submit', async function (e) {
     e.preventDefault();
-    var n = String(Math.floor(20241000 + Math.random() * 999));
-    document.getElementById('numeroNota').textContent = n;
-    document.getElementById('modal').classList.remove('hidden');
+    var tomador = document.getElementById('tomador').value.trim();
+    var tomadorDoc = document.getElementById('tomadorDoc').value.trim();
+    var descricao = document.getElementById('descricao').value.trim();
+    var valor = parseValor(document.getElementById('valor').value);
+    if (!tomador || !Number.isFinite(valor) || valor <= 0) {
+      toast('Preencha tomador e valor', { tipo: 'erro' });
+      return;
+    }
+    var btn = e.target.querySelector('button[type=submit]');
+    btn.disabled = true; btn.textContent = 'Emitindo...';
+    try {
+      var d = await api.post('/nfse', { tomador: tomador, tomadorDoc: tomadorDoc, descricao: descricao, valor: valor });
+      document.getElementById('numeroNota').textContent = d.nota.numero;
+      document.getElementById('modal').classList.remove('hidden');
+    } catch (err) {
+      toast('Erro ao emitir', { desc: err.message, tipo: 'erro' });
+      btn.disabled = false; btn.textContent = 'Emitir NFS-e';
+    }
   });
-  function fechar() { document.getElementById('modal').classList.add('hidden'); }
+  function fechar() { window.location.href = 'nfse.html'; }
   function simularFalha() {
     toast('API da prefeitura indisponivel', { tipo: 'erro', desc: 'Voce sera redirecionado para o tutorial manual.' });
-    setTimeout(function() { window.location.href = 'tutorial.html?id=1'; }, 1100);
+    setTimeout(function () { window.location.href = 'tutorial.html?id=1'; }, 1100);
   }
   lucide.createIcons();
 </script>

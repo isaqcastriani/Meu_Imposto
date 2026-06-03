@@ -1,22 +1,22 @@
 .admin-tema .sidebar {
-  background: #14123a;
-  border-right-color: #2a2760;
+  background: #0a1633;
+  border-right-color: #1c2c52;
 }
-.admin-tema .sidebar-topo { border-bottom-color: #2a2760; }
+.admin-tema .sidebar-topo { border-bottom-color: #1c2c52; }
 .admin-tema .sidebar .logo-titulo { color: #fff; }
 .admin-tema .sidebar .logo-subtitulo { color: rgba(255,255,255,0.6); }
-.admin-tema .sidebar-link { color: #c5c2e8; }
-.admin-tema .sidebar-link:hover { background: rgba(255,255,255,0.05); color: #fff; }
-.admin-tema .sidebar-link.ativo { background: rgba(245, 197, 24, 0.15); color: var(--amarelo); }
+.admin-tema .sidebar-link { color: #aeb9d4; }
+.admin-tema .sidebar-link:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.admin-tema .sidebar-link.ativo { background: rgba(245, 180, 10, 0.16); color: var(--amarelo); }
 .admin-tema .sidebar-link.ativo::before { background: var(--amarelo); }
-.admin-tema .sidebar-rodape { border-top-color: #2a2760; }
+.admin-tema .sidebar-rodape { border-top-color: #1c2c52; }
 
 .admin-bar {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 5px 12px;
-  background: rgba(245, 197, 24, 0.15);
-  border: 1px solid rgba(245, 197, 24, 0.4);
-  color: #8a6d00;
+  background: rgba(245, 180, 10, 0.15);
+  border: 1px solid rgba(245, 180, 10, 0.4);
+  color: #9a6c00;
   border-radius: 999px;
   font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
 }

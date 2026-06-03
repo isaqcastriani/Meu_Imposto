@@ -55,7 +55,7 @@
   var cresc = m.crescimento || [];
   new Chart(document.getElementById('g1'), {
     type: 'line',
-    data: { labels: cresc.map(function (c) { return c.mes; }), datasets: [{ label: 'Usuarios', data: cresc.map(function (c) { return c.usuarios; }), borderColor: '#1e1b6b', borderWidth: 3, tension: 0.35, pointRadius: 5 }] },
+    data: { labels: cresc.map(function (c) { return c.mes; }), datasets: [{ label: 'Usuarios', data: cresc.map(function (c) { return c.usuarios; }), borderColor: '#0c1c44', borderWidth: 3, tension: 0.35, pointRadius: 5 }] },
     options: { responsive: true, maintainAspectRatio: false }
   });
 

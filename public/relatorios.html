@@ -95,7 +95,7 @@
   });
   new Chart(document.getElementById('g2'), {
     type: 'line',
-    data: { labels: labels, datasets: [{ label: 'Lucro', data: data.map(function(d) { return d.lucro; }), borderColor: '#1e1b6b', borderWidth: 3, tension: 0.35 }] },
+    data: { labels: labels, datasets: [{ label: 'Lucro', data: data.map(function(d) { return d.lucro; }), borderColor: '#0c1c44', borderWidth: 3, tension: 0.35 }] },
     options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: function(c) { return brl(c.parsed.y); } } } } }
   });
   function porCategoria(tipo) {
@@ -105,7 +105,7 @@
     }
     return m;
   }
-  var COR = ['#1e1b6b', '#f5c518', '#10b981', '#f59e0b', '#dc2626'];
+  var COR = ['#0c1c44', '#1f49b6', '#12b886', '#f5b40a', '#f97316'];
   function pieChart(canvasId, tipo) {
     var m = porCategoria(tipo);
     var labs = Object.keys(m);

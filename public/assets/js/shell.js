@@ -69,9 +69,10 @@ function montarSidebar(paginaAtiva, ehAdmin) {
   html += '</a>';
   html += '</div>';
   if (!ehAdmin) {
+    var u = usuarioLogado() || {};
     html += '<div class="sidebar-user">';
-    html += '<div class="avatar">MS</div>';
-    html += '<div class="info"><div class="nome">' + usuarioMEI.razaoSocial + '</div><div class="cnpj tabular">' + usuarioMEI.cnpj + '</div></div>';
+    html += '<div class="avatar">' + iniciais(u.nome) + '</div>';
+    html += '<div class="info"><div class="nome">' + (u.nome || 'MEI') + '</div><div class="cnpj tabular">' + (u.email || '') + '</div></div>';
     html += '</div>';
   }
   html += '<nav class="sidebar-nav">';
@@ -108,8 +109,10 @@ function montarTopbar(titulo, ehAdmin) {
   } else {
     html += '<nav class="breadcrumb"><span>Inicio</span><span>›</span><span class="atual">' + titulo + '</span></nav>';
     html += '<div class="busca"><i data-lucide="search"></i><input class="input" placeholder="Buscar lancamentos, tutoriais, NFS-e..."></div>';
-    html += '<button class="btn btn-ghost btn-icon sino" onclick="abrirNotificacoes()"><i data-lucide="bell"></i><span class="ponto">' + alertas.length + '</span></button>';
-    html += '<button class="btn btn-ghost" style="padding:4px 12px 4px 4px;border-radius:999px"><span class="avatar" style="width:30px;height:30px;border-radius:50%;background:var(--roxo);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-right:6px">MS</span>Maria</button>';
+    var ut = usuarioLogado() || {};
+    var primeiro = (ut.nome || 'MEI').split(' ')[0];
+    html += '<button class="btn btn-ghost btn-icon sino" onclick="abrirNotificacoes()"><i data-lucide="bell"></i></button>';
+    html += '<button class="btn btn-ghost" style="padding:4px 12px 4px 4px;border-radius:999px"><span class="avatar" style="width:30px;height:30px;border-radius:50%;background:var(--roxo);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-right:6px">' + iniciais(ut.nome) + '</span>' + primeiro + '</button>';
   }
   return html;
 }
@@ -134,9 +137,23 @@ function renderShell(opts) {
 function toggleSidebar() {
   document.querySelector('.sidebar').classList.toggle('aberta');
 }
-function abrirNotificacoes() {
-  for (var i = 0; i < Math.min(alertas.length, 2); i++) {
-    var a = alertas[i];
-    toast(a.titulo, { desc: a.desc, tipo: a.tipo === 'warning' ? 'erro' : 'info' });
-  }
+// Iniciais a partir do nome (ex.: "Maria da Silva" -> "MS").
+function iniciais(nome) {
+  if (!nome) return 'MI';
+  var p = String(nome).trim().split(/\s+/);
+  var a = (p[0] || '')[0] || '';
+  var b = (p.length > 1 ? p[p.length - 1] : '')[0] || '';
+  return (a + b).toUpperCase() || 'MI';
+}
+// Busca os alertas reais na API (api.js esta carregado nas paginas internas).
+async function abrirNotificacoes() {
+  if (typeof api === 'undefined') return;
+  try {
+    var alertas = (await api.get('/alertas')).alertas || [];
+    if (!alertas.length) { toast('Sem novas notificacoes'); return; }
+    for (var i = 0; i < Math.min(alertas.length, 3); i++) {
+      var a = alertas[i];
+      toast(a.titulo, { desc: a.descricao, tipo: a.tipo === 'warning' ? 'erro' : 'info' });
+    }
+  } catch (e) { /* silencioso */ }
 }

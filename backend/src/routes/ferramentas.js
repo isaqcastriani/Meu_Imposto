@@ -5,12 +5,15 @@ import { asyncHandler, ApiError } from '../utils/http.js';
 import { simularDesenquadramento } from '../services/simulador.js';
 import { config } from '../config.js';
 
+// Router PUBLICO (sem autenticar) so para a consulta de CNPJ.
+// Montado ANTES dos demais no server.js. E usado na tela de cadastro
+// (usuario ainda nao logado). Dado publico, somente leitura, protegido pelo rate-limit global.
+export const cnpjPublicRouter = Router();
+
 export const ferramentasRouter = Router();
 
 // GET /api/cnpj/:cnpj  -> consulta dados PUBLICOS via BrasilAPI.
-// Fica ANTES do autenticar: e usado na tela de cadastro (usuario ainda nao logado).
-// E dado publico, somente leitura, e protegido pelo rate-limit global.
-ferramentasRouter.get('/cnpj/:cnpj', asyncHandler(async (req, res) => {
+cnpjPublicRouter.get('/cnpj/:cnpj', asyncHandler(async (req, res) => {
   const cnpj = String(req.params.cnpj).replace(/\D/g, '');
   if (cnpj.length !== 14) throw new ApiError(400, 'CNPJ deve ter 14 digitos');
   try {
@@ -34,7 +37,7 @@ ferramentasRouter.get('/cnpj/:cnpj', asyncHandler(async (req, res) => {
   }
 }));
 
-// A partir daqui, exige login.
+// Todas as rotas abaixo exigem login.
 ferramentasRouter.use(autenticar);
 
 // POST /api/simulador  { faturamento, tipo }

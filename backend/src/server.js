@@ -16,7 +16,7 @@ import { nfseRouter } from './routes/nfse.js';
 import { calendarioRouter } from './routes/calendario.js';
 import { conteudoRouter } from './routes/conteudo.js';
 import { alertasRouter } from './routes/alertas.js';
-import { ferramentasRouter } from './routes/ferramentas.js';
+import { ferramentasRouter, cnpjPublicRouter } from './routes/ferramentas.js';
 import { adminRouter } from './routes/admin.js';
 
 const app = express();
@@ -48,6 +48,7 @@ app.get('/api/health', async (_req, res) => {
 });
 
 // Rotas
+app.use('/api', cnpjPublicRouter);     // PUBLICO: /api/cnpj/:cnpj (antes dos routers com autenticar)
 app.use('/api/auth', authLimiter, authRouter);
 app.use('/api/perfil', perfilRouter);
 app.use('/api/lancamentos', lancamentosRouter);
@@ -57,7 +58,7 @@ app.use('/api/nfse', nfseRouter);
 app.use('/api/calendario', calendarioRouter);
 app.use('/api', conteudoRouter);       // /api/tutoriais, /api/atalhos
 app.use('/api/alertas', alertasRouter);
-app.use('/api', ferramentasRouter);    // /api/cnpj/:cnpj, /api/simulador, /api/beneficios
+app.use('/api', ferramentasRouter);    // /api/simulador, /api/beneficios (protegidos)
 app.use('/api/admin', adminRouter);
 
 app.use(notFound);

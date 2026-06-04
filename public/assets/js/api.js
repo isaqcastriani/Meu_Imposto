@@ -31,15 +31,40 @@ var API = (function () {
     localStorage.removeItem(USER_KEY);
   }
 
+  // Timeout das chamadas. O backend de producao (Render free) "dorme" apos
+  // inatividade e o 1o acesso pode levar ~30-60s para acordar (cold start).
+  // Sem timeout, o fetch fica pendente para sempre e o botao trava em "Entrando...".
+  var REQUEST_TIMEOUT_MS = 45000;
+
   async function request(method, path, body) {
     var headers = { 'Content-Type': 'application/json' };
     var token = getToken();
     if (token) headers['Authorization'] = 'Bearer ' + token;
-    var res = await fetch(BASE_URL + path, {
-      method: method,
-      headers: headers,
-      body: body ? JSON.stringify(body) : undefined,
-    });
+
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, REQUEST_TIMEOUT_MS);
+
+    var res;
+    try {
+      res = await fetch(BASE_URL + path, {
+        method: method,
+        headers: headers,
+        body: body ? JSON.stringify(body) : undefined,
+        signal: controller.signal,
+      });
+    } catch (e) {
+      clearTimeout(timer);
+      // Diferencia "demorou demais" de "servidor inacessivel" para dar uma mensagem util.
+      var fail = new Error(
+        e.name === 'AbortError'
+          ? 'O servidor demorou para responder. Ele pode estar iniciando — tente novamente em alguns segundos.'
+          : 'Nao foi possivel falar com o servidor. Verifique sua conexao e tente novamente.'
+      );
+      fail.status = 0;
+      throw fail;
+    }
+    clearTimeout(timer);
+
     var data = null;
     try { data = await res.json(); } catch (e) { /* sem corpo */ }
     if (!res.ok) {

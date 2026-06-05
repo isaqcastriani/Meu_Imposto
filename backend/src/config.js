@@ -17,7 +17,6 @@ export const config = {
   jwtSecret: required('JWT_SECRET'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   corsOrigin: process.env.CORS_ORIGIN || '*',
-  // Salario minimo vigente (base do INSS do MEI = 5%). Ajuste quando mudar.
   salarioMinimo: Number(process.env.SALARIO_MINIMO || 1518),
   tetoMEI: 81000,
 };

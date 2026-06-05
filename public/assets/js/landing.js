@@ -1,25 +1,12 @@
-/* =========================================================================
-   Landing page — interacoes e animacoes
-   - Header on-scroll, menu mobile, smooth scroll
-   - Reveal no scroll (IntersectionObserver)
-   - Counters animados + anel de teto
-   - Glow seguindo o mouse (pilares)
-   - Carrossel arrastavel (recursos / depoimentos)
-   - FAQ accordion
-   - Back to top + ano no footer
-   - Respeita prefers-reduced-motion
-   ========================================================================= */
 (function () {
   "use strict";
   var reduzir = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ---- Header ao rolar ---- */
   var header = document.querySelector(".lp-header");
   function onScroll() { if (header) header.classList.toggle("scrolled", window.scrollY > 12); }
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
 
-  /* ---- Menu mobile ---- */
   var burger = document.querySelector(".lp-burger");
   var mobile = document.querySelector(".lp-mobile");
   if (burger && mobile) {
@@ -29,7 +16,6 @@
     });
   }
 
-  /* ---- Smooth scroll ---- */
   document.querySelectorAll('a[href^="#"]').forEach(function (a) {
     a.addEventListener("click", function (e) {
       var alvo = document.querySelector(a.getAttribute("href"));
@@ -39,7 +25,6 @@
     });
   });
 
-  /* ---- Reveal no scroll ---- */
   var reveals = document.querySelectorAll(".reveal");
   if (reduzir || !("IntersectionObserver" in window)) {
     reveals.forEach(function (el) { el.classList.add("visivel"); });
@@ -52,7 +37,6 @@
     reveals.forEach(function (el) { io.observe(el); });
   }
 
-  /* ---- Counters ---- */
   function animarNumero(el) {
     var alvo = parseFloat(el.getAttribute("data-num"));
     var dec = parseInt(el.getAttribute("data-dec") || "0", 10);
@@ -76,7 +60,6 @@
     contadores.forEach(function (el) { ioN.observe(el); });
   }
 
-  /* ---- Anel de teto ---- */
   var ring = document.querySelector(".teto-ring");
   if (ring) {
     var pctAlvo = parseFloat(ring.getAttribute("data-pct") || "0");
@@ -97,7 +80,6 @@
     } else { animarRing(); }
   }
 
-  /* ---- Glow seguindo o mouse ---- */
   if (!reduzir) {
     document.querySelectorAll(".pilar").forEach(function (card) {
       card.addEventListener("mousemove", function (e) {
@@ -108,7 +90,6 @@
     });
   }
 
-  /* ---- Carrossel arrastavel ---- */
   document.querySelectorAll(".drag-row").forEach(function (row) {
     var down = false, startX = 0, startScroll = 0, moved = false;
     row.addEventListener("pointerdown", function (e) {
@@ -125,11 +106,9 @@
     row.addEventListener("pointerup", up);
     row.addEventListener("pointercancel", up);
     row.addEventListener("pointerleave", up);
-    // evita clique-fantasma apos arrastar
     row.addEventListener("click", function (e) { if (moved) { e.preventDefault(); e.stopPropagation(); } }, true);
   });
 
-  /* ---- FAQ accordion ---- */
   document.querySelectorAll(".faq-item").forEach(function (item) {
     var q = item.querySelector(".faq-q");
     var a = item.querySelector(".faq-a");
@@ -144,14 +123,12 @@
     });
   });
 
-  /* ---- Back to top ---- */
   var topBtn = document.querySelector(".top-link");
   if (topBtn) topBtn.addEventListener("click", function (e) {
     e.preventDefault();
     window.scrollTo({ top: 0, behavior: reduzir ? "auto" : "smooth" });
   });
 
-  /* ---- Form (sem backend: feedback simples) ---- */
   var form = document.querySelector(".cta-form");
   if (form) form.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -159,7 +136,6 @@
     if (btn) { btn.textContent = "Recebido! Vamos te chamar 🎉"; btn.disabled = true; }
   });
 
-  /* ---- Ano ---- */
   var ano = document.getElementById("ano");
   if (ano) ano.textContent = new Date().getFullYear();
 })();

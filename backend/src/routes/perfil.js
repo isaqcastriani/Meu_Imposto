@@ -7,7 +7,6 @@ import { asyncHandler, validate } from '../utils/http.js';
 export const perfilRouter = Router();
 perfilRouter.use(autenticar);
 
-// GET /api/perfil
 perfilRouter.get('/', asyncHandler(async (req, res) => {
   const perfil = await one(
     `select u.id, u.nome, u.email, u.role, u.status, u.created_at,
@@ -36,7 +35,6 @@ const updateSchema = z.object({
   endereco: z.string().optional(),
 });
 
-// PUT /api/perfil
 perfilRouter.put('/', asyncHandler(async (req, res) => {
   const d = validate(updateSchema, req.body);
   if (d.nome) await one('update usuarios set nome = $1 where id = $2 returning id', [d.nome, req.user.id]);

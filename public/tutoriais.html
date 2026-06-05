@@ -49,7 +49,6 @@
   try { tutoriais = (await api.get('/tutoriais')).tutoriais || []; }
   catch (e) { erroCarregar(document.getElementById('lista'), e); return; }
 
-  // Categorias derivadas dos dados reais.
   var setc = {}; tutoriais.forEach(function (t) { if (t.categoria) setc[t.categoria] = true; });
   var cats = ['Todas'].concat(Object.keys(setc));
   var catAtiva = 'Todas';

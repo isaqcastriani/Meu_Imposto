@@ -1,20 +1,15 @@
-// ===== Guarda de autenticacao =====
-// Roda assim que o shell carrega. Toda pagina interna inclui este arquivo,
-// entao quem nao tiver token (nao logou) e mandado de volta pro login.
 (function () {
   if (!localStorage.getItem('mi_token')) {
     window.location.replace('login.html');
   }
 })();
 
-// Logout real: limpa a sessao e volta pro login.
 function sair() {
   localStorage.removeItem('mi_token');
   localStorage.removeItem('mi_user');
   window.location.replace('login.html');
 }
 
-// Usuario logado (do token guardado no login).
 function usuarioLogado() {
   try { return JSON.parse(localStorage.getItem('mi_user') || 'null'); } catch (e) { return null; }
 }
@@ -117,7 +112,6 @@ function montarTopbar(titulo, ehAdmin) {
   return html;
 }
 function renderShell(opts) {
-  // Bloqueia MEI tentando abrir paginas de administracao.
   var u = usuarioLogado();
   if (opts.admin && (!u || u.role !== 'admin')) {
     window.location.replace('dashboard.html');
@@ -137,7 +131,6 @@ function renderShell(opts) {
 function toggleSidebar() {
   document.querySelector('.sidebar').classList.toggle('aberta');
 }
-// Iniciais a partir do nome (ex.: "Maria da Silva" -> "MS").
 function iniciais(nome) {
   if (!nome) return 'MI';
   var p = String(nome).trim().split(/\s+/);
@@ -145,7 +138,6 @@ function iniciais(nome) {
   var b = (p.length > 1 ? p[p.length - 1] : '')[0] || '';
   return (a + b).toUpperCase() || 'MI';
 }
-// Busca os alertas reais na API (api.js esta carregado nas paginas internas).
 async function abrirNotificacoes() {
   if (typeof api === 'undefined') return;
   try {
@@ -155,5 +147,5 @@ async function abrirNotificacoes() {
       var a = alertas[i];
       toast(a.titulo, { desc: a.descricao, tipo: a.tipo === 'warning' ? 'erro' : 'info' });
     }
-  } catch (e) { /* silencioso */ }
+  } catch (e) {  }
 }

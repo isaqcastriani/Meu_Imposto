@@ -15,7 +15,6 @@ const emitirSchema = z.object({
   data: z.string().optional(),
 });
 
-// GET /api/nfse
 nfseRouter.get('/', asyncHandler(async (req, res) => {
   const notas = await many(
     `select id, numero, data, tomador, tomador_doc, descricao, valor, status
@@ -25,11 +24,9 @@ nfseRouter.get('/', asyncHandler(async (req, res) => {
   res.json({ notas });
 }));
 
-// POST /api/nfse  -> "emite" (gera numero sequencial e persiste)
 nfseRouter.post('/', asyncHandler(async (req, res) => {
   const d = validate(emitirSchema, req.body);
   const ano = new Date().getFullYear();
-  // Numero sequencial por usuario/ano
   const seq = await one(
     `select count(*)::int + 1 as n from nfse where user_id=$1 and date_part('year', data)=$2`,
     [req.user.id, ano]
@@ -45,7 +42,6 @@ nfseRouter.post('/', asyncHandler(async (req, res) => {
   res.status(201).json({ nota });
 }));
 
-// POST /api/nfse/:id/cancelar
 nfseRouter.post('/:id/cancelar', asyncHandler(async (req, res) => {
   const nota = await one(
     `update nfse set status='cancelada' where id=$1 and user_id=$2 returning id, numero, status`,

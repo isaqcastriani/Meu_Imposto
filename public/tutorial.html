@@ -40,7 +40,6 @@
   html += '<p class="text-suave mt-2">Tempo estimado: ' + (t.tempo || '—') + ' · Dificuldade: ' + (t.dificuldade || '—') + '</p>';
   html += '<div class="card card-shadow mt-5" style="padding:24px">';
   if (t.conteudo) {
-    // Conteudo real (texto). Quebras de linha viram paragrafos.
     var paras = String(t.conteudo).split(/\n{2,}/);
     for (var i = 0; i < paras.length; i++) {
       html += '<p class="mt-3" style="line-height:1.7">' + paras[i].replace(/\n/g, '<br>') + '</p>';

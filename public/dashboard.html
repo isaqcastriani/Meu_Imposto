@@ -68,7 +68,6 @@
   var hoje = new Date();
   var dataStr = hoje.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
 
-  // Busca tudo em paralelo no backend.
   var resumo, das, alertas;
   try {
     var r = await Promise.all([

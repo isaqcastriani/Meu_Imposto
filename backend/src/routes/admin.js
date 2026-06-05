@@ -7,7 +7,6 @@ import { asyncHandler, validate, ApiError } from '../utils/http.js';
 export const adminRouter = Router();
 adminRouter.use(autenticar, exigirAdmin);
 
-// GET /api/admin/metricas
 adminRouter.get('/metricas', asyncHandler(async (_req, res) => {
   const totais = await one(
     `select
@@ -37,7 +36,6 @@ adminRouter.get('/metricas', asyncHandler(async (_req, res) => {
   });
 }));
 
-// GET /api/admin/usuarios
 adminRouter.get('/usuarios', asyncHandler(async (_req, res) => {
   const usuarios = await many(
     `select u.id, u.nome, u.email, u.status, u.created_at, u.last_login, p.cnpj
@@ -47,7 +45,6 @@ adminRouter.get('/usuarios', asyncHandler(async (_req, res) => {
   res.json({ usuarios });
 }));
 
-// PATCH /api/admin/usuarios/:id/status  { status: 'ativo' | 'inativo' }
 adminRouter.patch('/usuarios/:id/status', asyncHandler(async (req, res) => {
   const { status } = validate(z.object({ status: z.enum(['ativo', 'inativo']) }), req.body);
   const u = await one(
@@ -58,7 +55,6 @@ adminRouter.patch('/usuarios/:id/status', asyncHandler(async (req, res) => {
   res.json({ usuario: u });
 }));
 
-// ---- Gestao de tutoriais ----
 const tutorialSchema = z.object({
   titulo: z.string().min(2),
   categoria: z.string().min(1),
@@ -94,7 +90,6 @@ adminRouter.delete('/tutoriais/:id', asyncHandler(async (req, res) => {
   res.json({ mensagem: 'Tutorial removido' });
 }));
 
-// ---- Gestao de atalhos ----
 const atalhoSchema = z.object({
   nome: z.string().min(2),
   descricao: z.string().optional(),

@@ -85,7 +85,6 @@
 <script>
   renderShell({ pagina: 'nfse.html', titulo: 'NFS-e' });
 
-  // Preenche os dados do prestador a partir do perfil real.
   (async function () {
     try {
       var p = (await api.get('/perfil')).perfil || {};
@@ -93,7 +92,7 @@
         '<div><span class="text-suave">CNPJ:</span> <b class="tabular">' + (p.cnpj || '—') + '</b></div>' +
         '<div><span class="text-suave">Razao social:</span> <b>' + (p.razao_social || p.nome || '—') + '</b></div>' +
         '<div style="grid-column:span 2"><span class="text-suave">CNAE:</span> <b>' + (p.cnae || '—') + '</b></div>';
-    } catch (e) { /* segue sem bloquear a emissao */ }
+    } catch (e) {  }
   })();
 
   function parseValor(v) { return Number(String(v).replace(/\s/g, '').replace(/\./g, '').replace(',', '.')); }

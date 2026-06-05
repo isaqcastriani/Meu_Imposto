@@ -52,7 +52,6 @@
     '<div class="kpi"><div><div class="kpi-label">DAS gerados</div><div class="kpi-valor">' + numero(m.dasCalculados) + '</div></div><div class="kpi-icone amarelo">📄</div></div>' +
     '<div class="kpi"><div><div class="kpi-label">NFS-e emitidas</div><div class="kpi-valor">' + numero(m.nfseEmitidas) + '</div></div><div class="kpi-icone amarelo">📑</div></div>';
 
-  // Resumo real (em vez do funil fabricado).
   document.getElementById('funil').innerHTML =
     '<div class="flex justify-between p-3 mb-2" style="border:1px solid var(--borda);border-radius:10px"><span class="font-semibold">Usuarios MEI cadastrados</span><b class="tabular">' + numero(m.totalUsuarios) + '</b></div>' +
     '<div class="flex justify-between p-3 mb-2" style="border:1px solid var(--borda);border-radius:10px"><span class="font-semibold">Ativos nas ultimas 24h</span><b class="tabular">' + numero(m.ativosHoje) + '</b></div>' +

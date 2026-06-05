@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config.js';
 import { ApiError } from '../utils/http.js';
 
-/** Gera um token JWT para um usuario. */
 export function signToken(usuario) {
   return jwt.sign(
     { sub: usuario.id, role: usuario.role, email: usuario.email },
@@ -11,7 +10,6 @@ export function signToken(usuario) {
   );
 }
 
-/** Middleware: exige um Bearer token valido. Popula req.user. */
 export function autenticar(req, _res, next) {
   const header = req.headers.authorization || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : null;
@@ -25,7 +23,6 @@ export function autenticar(req, _res, next) {
   }
 }
 
-/** Middleware: exige role 'admin'. Use depois de autenticar. */
 export function exigirAdmin(req, _res, next) {
   if (!req.user || req.user.role !== 'admin') {
     return next(new ApiError(403, 'Acesso restrito a administradores'));

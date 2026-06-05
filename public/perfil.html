@@ -90,7 +90,6 @@
     btn.disabled = true; var txt = btn.textContent; btn.textContent = 'Salvando...';
     try {
       await api.put('/perfil', payload);
-      // Atualiza o nome guardado na sessao (aparece na topbar/saudacao).
       if (payload.nome) {
         var u = usuarioLogado(); if (u) { u.nome = payload.nome; localStorage.setItem('mi_user', JSON.stringify(u)); }
       }

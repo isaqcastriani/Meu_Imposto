@@ -12,7 +12,6 @@ async function tipoDoUsuario(userId) {
   return p?.tipo || 'Servicos';
 }
 
-// GET /api/das/atual  -> calcula o DAS do mes corrente (sem persistir)
 dasRouter.get('/atual', asyncHandler(async (req, res) => {
   const tipo = await tipoDoUsuario(req.user.id);
   const calc = calcularDAS(tipo);
@@ -26,7 +25,6 @@ dasRouter.get('/atual', asyncHandler(async (req, res) => {
   });
 }));
 
-// GET /api/das/historico -> guias geradas/pagas
 dasRouter.get('/historico', asyncHandler(async (req, res) => {
   const guias = await many(
     `select id, competencia, vencimento, valor, inss, iss, icms, status
@@ -36,7 +34,6 @@ dasRouter.get('/historico', asyncHandler(async (req, res) => {
   res.json({ guias });
 }));
 
-// POST /api/das/gerar  -> gera (persiste) a guia do mes corrente
 dasRouter.post('/gerar', asyncHandler(async (req, res) => {
   const tipo = await tipoDoUsuario(req.user.id);
   const calc = calcularDAS(tipo);
@@ -56,7 +53,6 @@ dasRouter.post('/gerar', asyncHandler(async (req, res) => {
   res.status(201).json({ guia });
 }));
 
-// POST /api/das/:id/pagar
 dasRouter.post('/:id/pagar', asyncHandler(async (req, res) => {
   const guia = await one(
     `update das_guias set status='pago' where id=$1 and user_id=$2

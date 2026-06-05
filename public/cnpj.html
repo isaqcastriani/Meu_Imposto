@@ -48,7 +48,7 @@
     btn.disabled = true; btn.textContent = 'Consultando...';
     var d;
     try {
-      d = await api.get('/cnpj/' + cnpj);   // consulta real (BrasilAPI via backend)
+      d = await api.get('/cnpj/' + cnpj);
     } catch (err) {
       document.getElementById('resultado').innerHTML = '';
       toast('Nao encontrado', { desc: err.message, tipo: 'erro' });

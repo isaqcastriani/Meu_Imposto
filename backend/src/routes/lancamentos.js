@@ -15,7 +15,6 @@ const lancamentoSchema = z.object({
   valor: z.coerce.number().nonnegative(),
 });
 
-// GET /api/lancamentos?tipo=&de=&ate=
 lancamentosRouter.get('/', asyncHandler(async (req, res) => {
   const { tipo, de, ate } = req.query;
   const cond = ['user_id = $1'];
@@ -33,7 +32,6 @@ lancamentosRouter.get('/', asyncHandler(async (req, res) => {
   res.json({ lancamentos });
 }));
 
-// POST /api/lancamentos
 lancamentosRouter.post('/', asyncHandler(async (req, res) => {
   const d = validate(lancamentoSchema, req.body);
   const lanc = await one(
@@ -45,7 +43,6 @@ lancamentosRouter.post('/', asyncHandler(async (req, res) => {
   res.status(201).json({ lancamento: lanc });
 }));
 
-// PUT /api/lancamentos/:id
 lancamentosRouter.put('/:id', asyncHandler(async (req, res) => {
   const d = validate(lancamentoSchema, req.body);
   const lanc = await one(
@@ -58,7 +55,6 @@ lancamentosRouter.put('/:id', asyncHandler(async (req, res) => {
   res.json({ lancamento: lanc });
 }));
 
-// DELETE /api/lancamentos/:id
 lancamentosRouter.delete('/:id', asyncHandler(async (req, res) => {
   const lanc = await one(
     'delete from lancamentos where id=$1 and user_id=$2 returning id',

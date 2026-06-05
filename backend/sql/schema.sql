@@ -1,12 +1,6 @@
--- ============================================================
---  Meu Imposto - Schema do banco (Supabase / PostgreSQL)
---  Pode rodar direto no SQL Editor do Supabase, ou via `npm run migrate`.
---  Idempotente: pode rodar mais de uma vez sem quebrar.
--- ============================================================
 
 create extension if not exists "pgcrypto";
 
--- ---------- Usuarios ----------
 create table if not exists usuarios (
   id          uuid primary key default gen_random_uuid(),
   nome        text not null,
@@ -18,7 +12,6 @@ create table if not exists usuarios (
   created_at  timestamptz not null default now()
 );
 
--- ---------- Perfil MEI (1:1 com usuario) ----------
 create table if not exists perfis_mei (
   user_id       uuid primary key references usuarios(id) on delete cascade,
   cpf           text,
@@ -36,7 +29,6 @@ create table if not exists perfis_mei (
   updated_at    timestamptz not null default now()
 );
 
--- ---------- Lancamentos financeiros ----------
 create table if not exists lancamentos (
   id          uuid primary key default gen_random_uuid(),
   user_id     uuid not null references usuarios(id) on delete cascade,
@@ -49,11 +41,10 @@ create table if not exists lancamentos (
 );
 create index if not exists idx_lancamentos_user on lancamentos(user_id, data);
 
--- ---------- Guias DAS ----------
 create table if not exists das_guias (
   id          uuid primary key default gen_random_uuid(),
   user_id     uuid not null references usuarios(id) on delete cascade,
-  competencia date not null,            -- primeiro dia do mes de competencia
+  competencia date not null,
   vencimento  date not null,
   valor       numeric(10,2) not null,
   inss        numeric(10,2) not null default 0,
@@ -65,7 +56,6 @@ create table if not exists das_guias (
 );
 create index if not exists idx_das_user on das_guias(user_id, competencia);
 
--- ---------- NFS-e ----------
 create table if not exists nfse (
   id          uuid primary key default gen_random_uuid(),
   user_id     uuid not null references usuarios(id) on delete cascade,
@@ -80,10 +70,9 @@ create table if not exists nfse (
 );
 create index if not exists idx_nfse_user on nfse(user_id, data);
 
--- ---------- Alertas / Notificacoes ----------
 create table if not exists alertas (
   id          uuid primary key default gen_random_uuid(),
-  user_id     uuid references usuarios(id) on delete cascade,  -- null = global
+  user_id     uuid references usuarios(id) on delete cascade,
   tipo        text not null default 'info' check (tipo in ('info','warning','erro')),
   titulo      text not null,
   descricao   text,
@@ -92,7 +81,6 @@ create table if not exists alertas (
 );
 create index if not exists idx_alertas_user on alertas(user_id, created_at);
 
--- ---------- Tutoriais (conteudo global) ----------
 create table if not exists tutoriais (
   id          uuid primary key default gen_random_uuid(),
   titulo      text not null,
@@ -103,7 +91,6 @@ create table if not exists tutoriais (
   created_at  timestamptz not null default now()
 );
 
--- ---------- Atalhos Gov.br (global) ----------
 create table if not exists atalhos_gov (
   id          uuid primary key default gen_random_uuid(),
   nome        text not null,

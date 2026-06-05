@@ -114,7 +114,6 @@
 <script src="assets/js/utils.js"></script>
 <script src="assets/js/api.js"></script>
 <script>
-  // Ja logado? vai pra area logada.
   if (api.getToken()) { window.location.replace('dashboard.html'); }
   var passoAtual = 1;
   var empresaData = null;
@@ -193,7 +192,6 @@
     btn.disabled = true;
     btn.textContent = 'Consultando...';
     try {
-      // Consulta REAL via nosso backend (que fala com a BrasilAPI).
       var d = await api.get('/cnpj/' + cnpj);
       empresaData = {
         razao: d.razaoSocial || '-',
@@ -264,12 +262,10 @@
       payload.cnaeDesc = empresaData.cnaeDesc;
     }
     try {
-      // Registro REAL: cria o usuario no backend e ja devolve o token.
       var data = await api.register(payload);
       toast('Cadastro concluido!', { desc: 'Bem-vindo(a), ' + data.usuario.nome + '!' });
       setTimeout(function() { window.location.href = 'dashboard.html'; }, 700);
     } catch (err) {
-      // 409 = e-mail ja existe; 422 = dados invalidos
       toast('Nao foi possivel concluir', { desc: err.message || 'Verifique os dados.', tipo: 'erro' });
       b.disabled = false;
       b.textContent = 'Finalizar cadastro ✓';

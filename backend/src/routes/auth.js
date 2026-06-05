@@ -30,7 +30,6 @@ function publico(usuario) {
   return { id: usuario.id, nome: usuario.nome, email: usuario.email, role: usuario.role, status: usuario.status };
 }
 
-// POST /api/auth/register
 authRouter.post('/register', asyncHandler(async (req, res) => {
   const dados = validate(registroSchema, req.body);
   const existe = await one('select id from usuarios where email = $1', [dados.email]);
@@ -58,7 +57,6 @@ authRouter.post('/register', asyncHandler(async (req, res) => {
   res.status(201).json({ token, usuario: publico(usuario) });
 }));
 
-// POST /api/auth/login
 authRouter.post('/login', asyncHandler(async (req, res) => {
   const dados = validate(loginSchema, req.body);
   const usuario = await one('select * from usuarios where email = $1', [dados.email]);
@@ -73,16 +71,13 @@ authRouter.post('/login', asyncHandler(async (req, res) => {
   res.json({ token, usuario: publico(usuario) });
 }));
 
-// GET /api/auth/me
 authRouter.get('/me', autenticar, asyncHandler(async (req, res) => {
   const usuario = await one('select id, nome, email, role, status from usuarios where id = $1', [req.user.id]);
   if (!usuario) throw new ApiError(404, 'Usuario nao encontrado');
   res.json({ usuario: publico(usuario) });
 }));
 
-// POST /api/auth/recuperar-senha  (stub: gera token de reset; envio de e-mail fora do escopo)
 authRouter.post('/recuperar-senha', asyncHandler(async (req, res) => {
   const email = String(req.body?.email || '');
-  // Nao revela se o e-mail existe (boa pratica de seguranca)
   res.json({ mensagem: 'Se o e-mail estiver cadastrado, enviaremos instrucoes de recuperacao.' });
 }));

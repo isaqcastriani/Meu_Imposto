@@ -70,7 +70,6 @@
 <script src="assets/js/utils.js"></script>
 <script src="assets/js/api.js"></script>
 <script>
-  // Se ja estiver logado, vai direto pra area certa.
   (function () {
     if (api.getToken()) {
       var u = api.getUser();
@@ -87,17 +86,15 @@
     var txtOriginal = btn.textContent;
     btn.disabled = true; btn.textContent = 'Entrando...';
     try {
-      var data = await api.login(email, senha);           // chama o backend de verdade
+      var data = await api.login(email, senha);
       toast('Bem-vindo(a), ' + data.usuario.nome + '!', { desc: 'Login realizado com sucesso.' });
       setTimeout(function () { window.location.href = destinoPorRole(data.usuario); }, 500);
     } catch (err) {
-      // 401 = credencial errada; 403 = conta desativada; outros = erro de rede/servidor
       toast('Nao foi possivel entrar', { desc: err.message || 'Verifique e-mail e senha.', tipo: 'erro' });
       btn.disabled = false; btn.textContent = txtOriginal;
     }
   }
 
-  // Botoes de demo: fazem login real nas contas-semente.
   function loginComo(email, senha) {
     document.getElementById('email').value = email;
     document.getElementById('senha').value = senha;

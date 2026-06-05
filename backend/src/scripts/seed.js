@@ -2,7 +2,6 @@ import bcrypt from 'bcryptjs';
 import { pool, transaction } from '../db.js';
 import { calcularDAS, vencimentoDAS } from '../services/das.js';
 
-// Dados de conteudo global (espelham o data.js do frontend)
 const TUTORIAIS = [
   ['Como emitir sua primeira NFS-e', 'NFS-e', '8 min', 'Facil'],
   ['DASN-SIMEI: passo a passo da declaracao anual', 'Declaracoes', '12 min', 'Medio'],
@@ -59,7 +58,6 @@ function isoMes(mesesAtras, dia) {
 
 async function main() {
   console.log('[seed] Inserindo conteudo global...');
-  // Tutoriais e atalhos (idempotente: limpa e reinsere)
   await pool.query('delete from tutoriais');
   for (const [titulo, categoria, tempo, dif] of TUTORIAIS) {
     await pool.query(
@@ -75,7 +73,6 @@ async function main() {
     );
   }
 
-  // Admin demo
   console.log('[seed] Criando usuarios demo...');
   const senhaAdmin = await bcrypt.hash('admin1234', 10);
   await pool.query(
@@ -85,7 +82,6 @@ async function main() {
     [senhaAdmin]
   );
 
-  // MEI demo: Maria da Silva (login: maria@silva.me / demo1234)
   const senhaMaria = await bcrypt.hash('demo1234', 10);
   const userId = await transaction(async (client) => {
     const { rows } = await client.query(
@@ -105,7 +101,6 @@ async function main() {
     return id;
   });
 
-  // Lancamentos da Maria
   console.log('[seed] Inserindo lancamentos demo...');
   await pool.query('delete from lancamentos where user_id=$1', [userId]);
   for (const [m, dia, desc, cat, tipo, valor] of LANCAMENTOS) {
@@ -115,7 +110,6 @@ async function main() {
     );
   }
 
-  // Historico de DAS (6 meses)
   console.log('[seed] Gerando historico de DAS...');
   await pool.query('delete from das_guias where user_id=$1', [userId]);
   const calc = calcularDAS('Servicos');
@@ -131,7 +125,6 @@ async function main() {
     );
   }
 
-  // Alertas demo
   await pool.query('delete from alertas where user_id=$1', [userId]);
   const alertas = [
     ['warning', 'DAS deste mes vence dia 20', 'Gere o boleto no PGMEI para evitar juros.'],

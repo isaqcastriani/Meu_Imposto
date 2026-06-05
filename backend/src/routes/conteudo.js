@@ -3,11 +3,9 @@ import { many, one } from '../db.js';
 import { autenticar } from '../middleware/auth.js';
 import { asyncHandler, ApiError } from '../utils/http.js';
 
-// Rotas de leitura de conteudo global: tutoriais e atalhos.
 export const conteudoRouter = Router();
 conteudoRouter.use(autenticar);
 
-// GET /api/tutoriais?categoria=
 conteudoRouter.get('/tutoriais', asyncHandler(async (req, res) => {
   const { categoria } = req.query;
   const params = [];
@@ -20,14 +18,12 @@ conteudoRouter.get('/tutoriais', asyncHandler(async (req, res) => {
   res.json({ tutoriais });
 }));
 
-// GET /api/tutoriais/:id
 conteudoRouter.get('/tutoriais/:id', asyncHandler(async (req, res) => {
   const tutorial = await one('select * from tutoriais where id=$1', [req.params.id]);
   if (!tutorial) throw new ApiError(404, 'Tutorial nao encontrado');
   res.json({ tutorial });
 }));
 
-// GET /api/atalhos
 conteudoRouter.get('/atalhos', asyncHandler(async (_req, res) => {
   const atalhos = await many(
     'select id, nome, descricao, categoria, url from atalhos_gov order by ordem, nome'

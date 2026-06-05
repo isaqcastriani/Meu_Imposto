@@ -1,16 +1,6 @@
--- ============================================================
---  MEU IMPOSTO — Setup completo do banco (Supabase / PostgreSQL)
---  COMO USAR: copie TUDO e cole no SQL Editor do Supabase, depois "Run".
---  Cria as tabelas + popula dados demo. Pode rodar mais de uma vez (idempotente).
---
---  Usuarios demo criados:
---    MEI   -> maria@silva.me        / demo1234
---    Admin -> admin@meuimposto.app  / admin1234
--- ============================================================
 
 create extension if not exists "pgcrypto";
 
--- ======================= TABELAS =======================
 
 create table if not exists usuarios (
   id          uuid primary key default gen_random_uuid(),
@@ -112,15 +102,12 @@ create table if not exists atalhos_gov (
   created_at  timestamptz not null default now()
 );
 
--- ======================= DADOS DEMO =======================
 
--- ---- Usuarios (senhas ja com hash bcrypt) ----
 insert into usuarios (nome, email, senha_hash, role) values
   ('Maria da Silva', 'maria@silva.me', '$2a$10$DutaN/pRozQ9c9Plhnusx.5ngMqV/RJPnqJGiP/YUa0fFFEG/Td6W', 'mei'),
   ('Administrador', 'admin@meuimposto.app', '$2a$10$iZuHmtC.iC.4WLWA4s7p3OImZXuNKtNmol7UChnr7MB.QkCg/jWNK', 'admin')
 on conflict (email) do update set senha_hash = excluded.senha_hash, nome = excluded.nome;
 
--- ---- Perfil da Maria ----
 insert into perfis_mei (user_id, cpf, telefone, razao_social, nome_fantasia, cnpj, cnae, cnae_desc, tipo, abertura, situacao, endereco)
 select id, '123.456.789-00', '(11) 98765-4321', 'MARIA DA SILVA SERVICOS DIGITAIS', 'Silva Digital',
        '12.345.678/0001-90', '6201-5/01', 'Desenvolvimento de programas de computador sob encomenda',
@@ -128,7 +115,6 @@ select id, '123.456.789-00', '(11) 98765-4321', 'MARIA DA SILVA SERVICOS DIGITAI
 from usuarios where email = 'maria@silva.me'
 on conflict (user_id) do nothing;
 
--- ---- Lancamentos da Maria (datas relativas ao mes atual) ----
 delete from lancamentos where user_id = (select id from usuarios where email='maria@silva.me');
 insert into lancamentos (user_id, data, descricao, categoria, tipo, valor)
 select u.id, v.data, v.descricao, v.categoria, v.tipo, v.valor
@@ -155,7 +141,6 @@ from usuarios u,
 ) as v(data, descricao, categoria, tipo, valor)
 where u.email = 'maria@silva.me';
 
--- ---- Historico de DAS (6 meses; INSS = 5% de R$1.518 = 75.90, ISS = 5) ----
 delete from das_guias where user_id = (select id from usuarios where email='maria@silva.me');
 insert into das_guias (user_id, competencia, vencimento, valor, inss, iss, icms, status)
 select u.id,
@@ -167,7 +152,6 @@ from usuarios u, generate_series(0,5) as i
 where u.email = 'maria@silva.me'
 on conflict (user_id, competencia) do nothing;
 
--- ---- Alertas da Maria ----
 delete from alertas where user_id = (select id from usuarios where email='maria@silva.me');
 insert into alertas (user_id, tipo, titulo, descricao)
 select u.id, v.tipo, v.titulo, v.descricao
@@ -179,7 +163,6 @@ from usuarios u,
 ) as v(tipo, titulo, descricao)
 where u.email = 'maria@silva.me';
 
--- ---- Tutoriais (conteudo global) ----
 delete from tutoriais;
 insert into tutoriais (titulo, categoria, tempo, dificuldade) values
   ('Como emitir sua primeira NFS-e', 'NFS-e', '8 min', 'Facil'),
@@ -198,7 +181,6 @@ insert into tutoriais (titulo, categoria, tempo, dificuldade) values
   ('Erros comuns na emissao de NFS-e', 'NFS-e', '7 min', 'Medio'),
   ('Baixar MEI: como dar baixa no CNPJ', 'Cadastro', '10 min', 'Medio');
 
--- ---- Atalhos Gov.br (global) ----
 delete from atalhos_gov;
 insert into atalhos_gov (nome, descricao, categoria, url, ordem) values
   ('PGMEI', 'Geracao e pagamento do DAS', 'Impostos', 'https://www8.receita.fazenda.gov.br/SimplesNacional/Aplicacoes/ATSPO/pgmei.app/', 1),
@@ -209,7 +191,6 @@ insert into atalhos_gov (nome, descricao, categoria, url, ordem) values
   ('Meu INSS', 'Beneficios previdenciarios', 'Beneficios', 'https://meu.inss.gov.br/', 6),
   ('Portal do Empreendedor', 'Cadastro e CCMEI', 'Cadastro', 'https://www.gov.br/empresas-e-negocios/pt-br/empreendedor', 7);
 
--- ======================= CONFERENCIA =======================
 select 'usuarios' as tabela, count(*) from usuarios
 union all select 'lancamentos', count(*) from lancamentos
 union all select 'das_guias', count(*) from das_guias

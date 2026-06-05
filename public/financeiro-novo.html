@@ -87,7 +87,6 @@
   }
   setTipo('receita');
 
-  // Converte "1.234,56" (pt-BR) para numero.
   function parseValor(v) {
     return Number(String(v).replace(/\s/g, '').replace(/\./g, '').replace(',', '.'));
   }

@@ -47,7 +47,6 @@
     dados = r[0]; perfil = r[1].perfil || {};
   } catch (e) { erroCarregar(document.getElementById('lista'), e); return; }
 
-  // Meses de contribuicao estimados a partir da abertura do MEI.
   var meses = 0;
   if (perfil.abertura) {
     var ab = new Date(perfil.abertura), ho = new Date();

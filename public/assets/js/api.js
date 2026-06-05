@@ -1,17 +1,4 @@
-/* ============================================================
-   Cliente de API do Meu Imposto (frontend estatico -> backend Express)
-   Uso:
-     api.login(email, senha) -> salva token e retorna { token, usuario }
-     api.get('/financeiro/resumo')
-     api.post('/lancamentos', { ... })
-   O token JWT fica no localStorage. Configure a URL base abaixo.
-   ============================================================ */
 var API = (function () {
-  // Resolucao da URL base:
-  //  - window.API_BASE_URL definido -> usa ele (override manual)
-  //  - rodando local (localhost/127.0.0.1) -> backend de dev em :4000
-  //  - producao (GitHub Pages) -> API hospedada no Render
-  // OBS: confirme esta URL no painel do Render apos o primeiro deploy.
   var _isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
   var PROD_API = 'https://meu-imposto-api.onrender.com/api';
   var BASE_URL = (window.API_BASE_URL) || (_isLocal ? 'http://localhost:4000/api' : PROD_API);
@@ -31,9 +18,6 @@ var API = (function () {
     localStorage.removeItem(USER_KEY);
   }
 
-  // Timeout das chamadas. O backend de producao (Render free) "dorme" apos
-  // inatividade e o 1o acesso pode levar ~30-60s para acordar (cold start).
-  // Sem timeout, o fetch fica pendente para sempre e o botao trava em "Entrando...".
   var REQUEST_TIMEOUT_MS = 45000;
 
   async function request(method, path, body) {
@@ -54,7 +38,6 @@ var API = (function () {
       });
     } catch (e) {
       clearTimeout(timer);
-      // Diferencia "demorou demais" de "servidor inacessivel" para dar uma mensagem util.
       var fail = new Error(
         e.name === 'AbortError'
           ? 'O servidor demorou para responder. Ele pode estar iniciando — tente novamente em alguns segundos.'
@@ -66,7 +49,7 @@ var API = (function () {
     clearTimeout(timer);
 
     var data = null;
-    try { data = await res.json(); } catch (e) { /* sem corpo */ }
+    try { data = await res.json(); } catch (e) {  }
     if (!res.ok) {
       var msg = (data && data.erro) ? data.erro : ('Erro ' + res.status);
       var err = new Error(msg);
@@ -89,7 +72,6 @@ var API = (function () {
     return data;
   }
 
-  // Redireciona para login se nao autenticado. Chame no topo de paginas internas.
   function exigirLogin() {
     if (!getToken()) { window.location.href = 'login.html'; return false; }
     return true;

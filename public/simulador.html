@@ -48,7 +48,6 @@
 <script>
   renderShell({ pagina: 'simulador.html', titulo: 'Simulador' });
   var tipoUsuario = 'Servicos';
-  // Pega o tipo de atividade do perfil (afeta a aliquota estimada).
   (async function () {
     try { var p = (await api.get('/perfil')).perfil; if (p && p.tipo) tipoUsuario = p.tipo; } catch (e) {}
   })();

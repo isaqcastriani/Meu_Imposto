@@ -5,8 +5,6 @@ import { asyncHandler } from '../utils/http.js';
 export const calendarioRouter = Router();
 calendarioRouter.use(autenticar);
 
-// GET /api/calendario?ano=2026
-// Gera as obrigacoes fiscais do MEI no ano: DAS mensal (dia 20) + DASN-SIMEI (31/05).
 calendarioRouter.get('/', asyncHandler(async (req, res) => {
   const ano = Number(req.query.ano) || new Date().getFullYear();
   const obrigacoes = [];

@@ -6,7 +6,6 @@ import { asyncHandler, ApiError } from '../utils/http.js';
 export const alertasRouter = Router();
 alertasRouter.use(autenticar);
 
-// GET /api/alertas  -> alertas do usuario + globais
 alertasRouter.get('/', asyncHandler(async (req, res) => {
   const alertas = await many(
     `select id, tipo, titulo, descricao, lida, created_at
@@ -17,7 +16,6 @@ alertasRouter.get('/', asyncHandler(async (req, res) => {
   res.json({ alertas });
 }));
 
-// POST /api/alertas/:id/lida
 alertasRouter.post('/:id/lida', asyncHandler(async (req, res) => {
   const a = await one(
     `update alertas set lida = true where id=$1 and (user_id=$2 or user_id is null) returning id`,

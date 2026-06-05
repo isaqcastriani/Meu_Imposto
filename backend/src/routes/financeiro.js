@@ -7,12 +7,9 @@ import { config } from '../config.js';
 export const financeiroRouter = Router();
 financeiroRouter.use(autenticar);
 
-// GET /api/financeiro/resumo
-// Faturamento (receitas) dos ultimos 12 meses, total anual, % do teto, saldo do mes.
 financeiroRouter.get('/resumo', asyncHandler(async (req, res) => {
   const userId = req.user.id;
 
-  // Serie dos ultimos 12 meses (receitas por mes)
   const serie = await many(
     `with meses as (
         select to_char(d, 'YYYY-MM') as ym,
@@ -37,7 +34,6 @@ financeiroRouter.get('/resumo', asyncHandler(async (req, res) => {
   const faturamentoAnual = faturamentoMensal.reduce((s, x) => s + x.valor, 0);
   const percentTeto = Math.min(100, Number(((faturamentoAnual / config.tetoMEI) * 100).toFixed(1)));
 
-  // Totais do mes corrente
   const mes = await one(
     `select coalesce(sum(valor) filter (where tipo='receita'),0) as receita,
             coalesce(sum(valor) filter (where tipo='despesa'),0) as despesa
@@ -46,7 +42,6 @@ financeiroRouter.get('/resumo', asyncHandler(async (req, res) => {
     [userId]
   );
 
-  // Despesas por categoria (ano corrente)
   const porCategoria = await many(
     `select categoria, coalesce(sum(valor),0) as total
        from lancamentos

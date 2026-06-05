@@ -1,9 +1,3 @@
-/* =========================================================================
-   Meu Imposto — Design System (Light Fintech / Finovate-style)
-   Paleta: Navy + Verde. Tokens dirigem TODAS as paginas do SaaS.
-   Obs.: mantemos os nomes legados de variaveis (--roxo, --amarelo...) para
-   nao quebrar HTML/JS existentes — apenas os VALORES mudaram para o navy.
-   ========================================================================= */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -49,19 +43,17 @@ textarea {
   background: rgba(37, 99, 235, 0.18);
 }
 :root {
-  /* Marca — navy + verde (nomes legados preservados) */
   --navy-900: #081230;
-  --roxo: #0c1c44;        /* primario (navy) */
-  --roxo-claro: #1f49b6;  /* azul de destaque p/ hover, gradientes, links */
+  --roxo: #0c1c44;
+  --roxo-claro: #1f49b6;
   --azul: #2563eb;
   --azul-claro: #3b82f6;
-  --amarelo: #f5b40a;     /* destaque/alerta ambar */
-  --verde: #12b886;       /* sucesso / dinheiro */
+  --amarelo: #f5b40a;
+  --verde: #12b886;
   --verde-escuro: #0c9b73;
   --vermelho: #ef4444;
   --laranja: #f97316;
 
-  /* Texto e superficies */
   --texto: #0e1b39;
   --texto-suave: #5d6b88;
   --borda: #e4e9f2;
@@ -70,13 +62,11 @@ textarea {
   --fundo-card: #ffffff;
   --fundo-suave: #eef2fa;
 
-  /* Sombras em camadas (look fintech limpo) */
   --sombra-sm: 0 1px 2px rgba(12, 28, 68, 0.06);
   --sombra: 0 4px 16px -4px rgba(12, 28, 68, 0.1);
   --sombra-md: 0 10px 30px -8px rgba(12, 28, 68, 0.14);
   --sombra-lg: 0 24px 60px -12px rgba(12, 28, 68, 0.22);
 
-  /* Gradientes de marca */
   --grad-marca: linear-gradient(135deg, #0c1c44 0%, #1f49b6 55%, #12b886 130%);
   --grad-azul: linear-gradient(135deg, #1f49b6, #2563eb);
 
@@ -116,7 +106,6 @@ h3 {
   padding: 0 1.5rem;
 }
 
-/* ===== Botoes ===== */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -202,7 +191,6 @@ h3 {
   height: 38px;
 }
 
-/* ===== Cards ===== */
 .card {
   background: var(--fundo-card);
   border: 1px solid var(--borda);
@@ -225,7 +213,6 @@ h3 {
   border-color: var(--borda-forte);
 }
 
-/* ===== Badges ===== */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -263,7 +250,6 @@ h3 {
   color: var(--texto-suave);
 }
 
-/* ===== Formularios ===== */
 .input,
 .select,
 .textarea {
@@ -299,7 +285,6 @@ h3 {
   margin-bottom: 16px;
 }
 
-/* ===== Tabelas ===== */
 .tabela {
   width: 100%;
   border-collapse: collapse;
@@ -332,7 +317,6 @@ h3 {
   background: var(--fundo-suave);
 }
 
-/* ===== Utilitarios (layout) ===== */
 .flex {
   display: flex;
 }
@@ -474,7 +458,6 @@ h3 {
   }
 }
 
-/* ===== Logo ===== */
 .logo {
   display: inline-flex;
   align-items: center;
@@ -502,7 +485,6 @@ h3 {
   font-weight: 500;
 }
 
-/* ===== Hero mockup (landing) ===== */
 .hero-checks {
   display: flex;
   flex-wrap: wrap;
@@ -566,7 +548,6 @@ h3 {
   opacity: 0.9;
 }
 
-/* ===== Titulo de secao (landing) ===== */
 .secao-titulo {
   text-align: center;
   max-width: 620px;
@@ -588,7 +569,6 @@ h3 {
   font-size: 2.25rem;
 }
 
-/* ===== App shell ===== */
 .app {
   min-height: 100vh;
   display: flex;
@@ -725,7 +705,6 @@ h3 {
   }
 }
 
-/* ===== Topbar ===== */
 .topbar {
   position: sticky;
   top: 0;
@@ -799,7 +778,6 @@ h3 {
   }
 }
 
-/* ===== Cabecalho de pagina ===== */
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -834,7 +812,6 @@ h3 {
   margin-top: 4px;
 }
 
-/* ===== KPI ===== */
 .kpi {
   background: #fff;
   border: 1px solid var(--borda);
@@ -898,7 +875,6 @@ h3 {
   color: var(--vermelho);
 }
 
-/* ===== Progresso ===== */
 .progress {
   height: 14px;
   border-radius: 999px;
@@ -920,7 +896,6 @@ h3 {
   background: linear-gradient(to right, var(--vermelho), var(--laranja));
 }
 
-/* ===== Alertas ===== */
 .alerta {
   display: flex;
   gap: 12px;
@@ -951,7 +926,6 @@ h3 {
   color: var(--roxo-claro);
 }
 
-/* ===== Atalho rapido ===== */
 .atalho-rapido {
   padding: 18px;
   border: 1px solid var(--borda);
@@ -982,7 +956,6 @@ h3 {
   justify-content: center;
 }
 
-/* ===== Modal ===== */
 .modal-fundo {
   position: fixed;
   inset: 0;
@@ -1003,7 +976,6 @@ h3 {
   box-shadow: var(--sombra-lg);
 }
 
-/* ===== Toasts ===== */
 .toasts {
   position: fixed;
   top: 20px;
@@ -1049,7 +1021,6 @@ h3 {
   }
 }
 
-/* ===== Diversos ===== */
 .range {
   width: 100%;
   accent-color: var(--azul);

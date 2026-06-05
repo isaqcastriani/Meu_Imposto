@@ -21,23 +21,18 @@ import { adminRouter } from './routes/admin.js';
 
 const app = express();
 
-// Atras de proxy (Render/Railway/Nginx) -> confia no X-Forwarded-* para rate-limit e IP corretos
 app.set('trust proxy', 1);
 
-// Headers de seguranca (HSTS, X-Content-Type-Options, esconde X-Powered-By, etc.)
 app.use(helmet());
 app.use(cors({ origin: config.corsOrigin === '*' ? true : config.corsOrigin.split(',') }));
 app.use(express.json({ limit: '1mb' }));
 app.use(morgan(config.env === 'production' ? 'combined' : 'dev'));
 
-// Rate limit global de defesa (todas as rotas /api)
 const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false });
 app.use('/api', globalLimiter);
 
-// Rate limit mais estrito nas rotas de autenticacao (anti brute-force)
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 50, standardHeaders: true, legacyHeaders: false });
 
-// Healthcheck
 app.get('/api/health', async (_req, res) => {
   try {
     await pool.query('select 1');
@@ -47,8 +42,7 @@ app.get('/api/health', async (_req, res) => {
   }
 });
 
-// Rotas
-app.use('/api', cnpjPublicRouter);     // PUBLICO: /api/cnpj/:cnpj (antes dos routers com autenticar)
+app.use('/api', cnpjPublicRouter);
 app.use('/api/auth', authLimiter, authRouter);
 app.use('/api/perfil', perfilRouter);
 app.use('/api/lancamentos', lancamentosRouter);
@@ -56,9 +50,9 @@ app.use('/api/financeiro', financeiroRouter);
 app.use('/api/das', dasRouter);
 app.use('/api/nfse', nfseRouter);
 app.use('/api/calendario', calendarioRouter);
-app.use('/api', conteudoRouter);       // /api/tutoriais, /api/atalhos
+app.use('/api', conteudoRouter);
 app.use('/api/alertas', alertasRouter);
-app.use('/api', ferramentasRouter);    // /api/simulador, /api/beneficios (protegidos)
+app.use('/api', ferramentasRouter);
 app.use('/api/admin', adminRouter);
 
 app.use(notFound);

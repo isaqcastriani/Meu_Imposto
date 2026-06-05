@@ -58,10 +58,9 @@
   renderShell({ pagina: 'calendario.html', titulo: 'Calendario' });
   var meses = ['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   var dataAtual = new Date();
-  var cache = {};       // ano -> [{data(dia), mes, titulo, tipo, desc}]
+  var cache = {};
   var obrigacoes = [];
 
-  // Busca as obrigacoes de um ano (com cache) e transforma para {data:dia, mes, ...}.
   async function carregarAno(ano) {
     if (cache[ano]) return cache[ano];
     var d = await api.get('/calendario?ano=' + ano);
@@ -106,7 +105,6 @@
     }
     document.getElementById('grade').innerHTML = html;
 
-    // Proximas obrigacoes (a partir de hoje), ordenadas.
     var futuras = obrigacoes.filter(function (o) { return new Date(ano, o.mes, o.data) >= new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()); })
       .sort(function (a, b) { return (a.mes - b.mes) || (a.data - b.data); }).slice(0, 6);
     var lh = '';
